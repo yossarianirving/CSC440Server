@@ -1,0 +1,14 @@
+2019-11-08 09:18:20 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CUSTOMERS" not found; SQL statement:
+SELECT id, first_name, last_name FROM customers WHERE first_name = ? [42102-199]
+2019-11-08 10:24:44 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "COURSE" already exists; SQL statement:
+CREATE TABLE course(
+	id INT PRIMARY KEY,
+	title CHAR(7) NOT NULL,
+	requirement_satisfaction CHAR(50) NOT NULL,
+	credits DOUBLE NOT NULL,
+	semester_taken CHAR(12) NOT NULL,
+	year_taken INT(4) NOT NULL,
+	final_grade CHAR(1)
+) [42101-199]

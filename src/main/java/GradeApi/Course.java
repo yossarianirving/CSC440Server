@@ -2,16 +2,84 @@ package GradeApi;
 
 public class Course {
     public int id;
-    public String description;
-    public String course;
-    public int hours;
-    public String status;
+    public String title;
+    public String requirementSatisfaction;
+    public double credits;
+    public String semesterTaken;
+    public String yearTaken;
+    public String finalGrade;
 
-    Course(int id, String description, String course, int hours, String status) {
-        this.id = id;
-        this.description = description;
-        this.course = course;
-        this.hours = hours;
-        this.status = status;
+    public int getId() {
+        return id;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getRequirementSatisfaction() {
+        return requirementSatisfaction;
+    }
+
+    public void setRequirementSatisfaction(String requirementSatisfaction) {
+        this.requirementSatisfaction = requirementSatisfaction;
+    }
+
+    public double getCredits() {
+        return credits;
+    }
+
+    public void setCredits(double credits) {
+        this.credits = credits;
+    }
+
+    public String getSemesterTaken() {
+        return semesterTaken;
+    }
+
+    public void setSemesterTaken(String semesterTaken) {
+        this.semesterTaken = semesterTaken;
+    }
+
+    public String getYearTaken() {
+        return yearTaken;
+    }
+
+    public void setYearTaken(String yearTaken) {
+        this.yearTaken = yearTaken;
+    }
+
+    public String getFinalGrade() {
+        return finalGrade;
+    }
+
+    public void setFinalGrade(String finalGrade) {
+        this.finalGrade = finalGrade;
+    }
+
+    Course(int id, String title, String requirementSatisfaction, double credits, String semesterTaken, String yearTaken, String finalGrade) {
+        this.id = id;
+        this.title = title;
+        this.requirementSatisfaction = requirementSatisfaction;
+        this.credits = credits;
+        this.semesterTaken = semesterTaken;
+        this.yearTaken = yearTaken;
+        this.finalGrade = finalGrade;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Course[id=%d, title='%s', requirementSatisfaction='%s', credits=%f, semesterTaken='%s', yearTaken='%s', finalGrade='%s']",
+                id, title, requirementSatisfaction, credits, semesterTaken, yearTaken, finalGrade);
+    }
+
 }

@@ -14,8 +14,8 @@ public class CourseController {
     @GetMapping("")
     public Course[] courses() {
         Course[] allCourses = {
-                new Course(1, "Not fun", "CSC195", 3, "completed"),
-                new Course(2, "Very fun", "CSC440", 3, "in_progress")
+                new Course(1, "CSC190", "Core", 3, "FALL", "2016", "B"),
+                new Course(2, "CSC308", "Supporting", 3, "SPRING", "2018", "A")
         };
 
         return allCourses;
@@ -26,8 +26,8 @@ public class CourseController {
     @GetMapping("{id}")
     public ResponseEntity<Course> getcourse(@PathVariable("id") int id) {
         Course[] allCourses = {
-                new Course(1, "Not fun", "CSC195", 3, "completed"),
-                new Course(2, "Very fun", "CSC440", 3, "in_progress")
+                new Course(1, "CSC190", "Core", 3, "FALL", "2016", "B"),
+                new Course(2, "CSC308", "Supporting", 3, "SPRING", "2018", "A")
         };
         if (id > allCourses.length) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

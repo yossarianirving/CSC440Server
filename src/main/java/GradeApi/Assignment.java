@@ -7,7 +7,7 @@ public class Assignment {
     private double weight;
     private double grade;
 
-    public Assignment(String title, int courseID, double weight, double grade) {
+    public Assignment(String title, double weight, double grade, int courseID) {
         this.title = title;
         this.courseID = courseID;
         this.weight = weight;
