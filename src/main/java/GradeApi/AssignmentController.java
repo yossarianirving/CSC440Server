@@ -26,85 +26,24 @@ import java.util.stream.Collectors;
 @Component
 @RestController
 @RequestMapping("/assignments")
-public class AssignmentController implements CommandLineRunner {
+public class AssignmentController {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
 
 
-    // run: for testing purposes (to make sure SQL is correct).
-    @Override
-    public void run(String... strings) throws Exception {
-
-
-        /*
-        jdbcTemplate.execute("DROP TABLE assignment IF EXISTS");
-        jdbcTemplate.execute("DROP TABLE course IF EXISTS");
-
-        jdbcTemplate.execute("CREATE TABLE course(\n" +
-                "\tid INT PRIMARY KEY,\n" +
-                "\ttitle CHAR(7) NOT NULL,\n" +
-                "\trequirement_satisfaction CHAR(50) NOT NULL,\n" +
-                "\tcredits DOUBLE NOT NULL,\n" +
-                "\tsemester_taken CHAR(12) NOT NULL,\n" +
-                "\tyear_taken INT(4) NOT NULL,\n" +
-                "\tfinal_grade CHAR(1)\n" +
-                ")");
-        jdbcTemplate.execute("CREATE TABLE assignment(\n" +
-                "\ttitle CHAR(50) PRIMARY KEY,\n" +
-                "\tweight DOUBLE NOT NULL,\n" +
-                "\tgrade DOUBLE NOT NULL,\n" +
-                "\tcourse_id INT NOT NULL, CONSTRAINT course_id_constraint FOREIGN KEY (course_id) REFERENCES course(id)\n" +
-                ")");
-
-        // Attempt to insert some data into the tables.
-        List<Object[]> c1 = Arrays.asList("1 CSC190 Core 3 FALL 2016 B", "2 CSC191 Core 3 FALL 2017 A", "3 CSC195 Core 3 FALL 2017 A").stream()
-                .map(name -> name.split(" "))
-                .collect(Collectors.toList());
-        List<Object[]> a1 = Arrays.asList("Test1 15 98.3 1").stream()
-                .map(name -> name.split(" "))
-                .collect(Collectors.toList());
-
-        jdbcTemplate.batchUpdate("INSERT INTO course(id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", c1);
-        jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", a1);
-
-         */
-
-        List<Object[]> a2 = new ArrayList<>();
-        Object[] a0 = {5, "CSC495", "Core", 0.5, "SPRING", 2017, "S"};
-        a2.add(a0);
-
-
-        // Query the tables.
-        Course c1 = null;
-
-        System.out.println("Querying for courses:");
-        jdbcTemplate.query(
-                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id = ? OR id = ?", new Object[]{"1", "2"},
-                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
-        ).forEach(course -> System.out.println(course.toString()));
-
-        System.out.println("Querying for assignments: ");
-        jdbcTemplate.query(
-                "SELECT title, weight, grade, course_id FROM assignment WHERE title = ?", new Object[]{"Test1"},
-                (rs, rowNum) -> new Assignment(rs.getString(1), rs.getDouble(2), rs.getDouble(3), rs.getInt(4))
-        ).forEach(assignment -> System.out.println(assignment.toString()));
-
-        System.out.println("\n--- DONE ---\n");
-    }
-
-
-    public static void main(String[] args) throws Exception {
-
-        SpringApplication.run(AssignmentController.class, args);
-    }
+//
+//    public static void main(String[] args) throws Exception {
+//        SpringApplication.run(AssignmentController.class, args);
+//    }
 
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
 
-    @GetMapping("")
-    public Assignment[] getAssignments(@RequestParam(value = "name", defaultValue = "-1") String courseID) throws Exception {
+    @GetMapping("/getAssignments")
+    public Object[] getAssignments(@RequestParam(value = "name", defaultValue = "-1") String courseID) throws Exception {
 
+        /*
         // Create the Assignment and Course table if they don't already exist.
         //jdbcTemplate.execute("DROP TABLE assignment IF EXISTS");
         //jdbcTemplate.execute("DROP TABLE course IF EXISTS");
@@ -156,7 +95,16 @@ public class AssignmentController implements CommandLineRunner {
         }
         conn.close();
         Assignment[] a = {a0, new Assignment("CSC190", 10.5, 91, 1)};
-        return a;
+
+
+         */
+
+
+        List<Assignment> assignments = jdbcTemplate.query(
+                "SELECT title, weight, grade, course_id FROM assignment",
+                (rs, rowNum) -> new Assignment(rs.getString(1), rs.getDouble(2), rs.getDouble(3), rs.getInt(4))
+        );
+        return assignments.toArray();
     }
 
 
