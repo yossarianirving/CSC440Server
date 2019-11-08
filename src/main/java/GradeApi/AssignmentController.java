@@ -31,9 +31,13 @@ public class AssignmentController implements CommandLineRunner {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+
+    // run: for testing purposes (to make sure SQL is correct).
     @Override
     public void run(String... strings) throws Exception {
 
+
+        /*
         jdbcTemplate.execute("DROP TABLE assignment IF EXISTS");
         jdbcTemplate.execute("DROP TABLE course IF EXISTS");
 
@@ -64,40 +68,29 @@ public class AssignmentController implements CommandLineRunner {
         jdbcTemplate.batchUpdate("INSERT INTO course(id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", c1);
         jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", a1);
 
+         */
+
+        List<Object[]> a2 = new ArrayList<>();
+        Object[] a0 = {5, "CSC495", "Core", 0.5, "SPRING", 2017, "S"};
+        a2.add(a0);
+
+
         // Query the tables.
+        Course c1 = null;
+
+        System.out.println("Querying for courses:");
         jdbcTemplate.query(
-                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id = ?", new Object[]{"1"},
-                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getString(6), rs.getString(7))
+                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id = ? OR id = ?", new Object[]{"1", "2"},
+                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
         ).forEach(course -> System.out.println(course.toString()));
 
-        System.out.println("*** DONE ***");
-
-        System.exit(0);
-        /////////////////////////////
-
-        System.out.println("about to drop, create, and insert !!!");
-        jdbcTemplate.execute("DROP TABLE customers IF EXISTS");
-        jdbcTemplate.execute("CREATE TABLE customers(" +
-                "id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255))");
-
-        // Split up the array of whole names into an array of first/last names
-        List<Object[]> splitUpNames = Arrays.asList("John Woo", "Jeff Dean", "Josh Bloch", "Josh Long").stream()
-                .map(name -> name.split(" "))
-                .collect(Collectors.toList());
-
-        // Use a Java 8 stream to print out each tuple of the list
-        splitUpNames.forEach(name -> System.out.println(String.format("Inserting customer record for %s %s", name[0], name[1])));
-
-        // Uses JdbcTemplate's batchUpdate operation to bulk load data
-        jdbcTemplate.batchUpdate("INSERT INTO customers(first_name, last_name) VALUES (?,?)", splitUpNames);
-
-        System.out.println("Querying for customer records where first_name = 'Josh':");
+        System.out.println("Querying for assignments: ");
         jdbcTemplate.query(
-                "SELECT id, first_name, last_name FROM customers WHERE first_name = ?", new Object[]{"Josh"},
-                (rs, rowNum) -> new Customer(rs.getLong("id"), rs.getString("first_name"), rs.getString("last_name"))
-        ).forEach(customer -> System.out.println(customer.toString()));
+                "SELECT title, weight, grade, course_id FROM assignment WHERE title = ?", new Object[]{"Test1"},
+                (rs, rowNum) -> new Assignment(rs.getString(1), rs.getDouble(2), rs.getDouble(3), rs.getInt(4))
+        ).forEach(assignment -> System.out.println(assignment.toString()));
 
-        System.out.println("--- DONE ---");
+        System.out.println("\n--- DONE ---\n");
     }
 
 
@@ -145,7 +138,7 @@ public class AssignmentController implements CommandLineRunner {
         // Query the tables.
         jdbcTemplate.query(
                 "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id = ?", new Object[]{"1"},
-                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getString(6), rs.getString(7))
+                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
         ).forEach(course -> System.out.println(course.toString()));
 
         System.out.println("*** DONE ***");

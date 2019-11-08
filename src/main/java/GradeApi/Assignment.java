@@ -3,16 +3,24 @@ package GradeApi;
 public class Assignment {
 
     private String title;
-    private int courseID;
     private double weight;
     private double grade;
+    private int courseID;
 
     public Assignment(String title, double weight, double grade, int courseID) {
         this.title = title;
-        this.courseID = courseID;
         this.weight = weight;
         this.grade = grade;
+        this.courseID = courseID;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Assignment[title='%s', weight=%f, grade=%f, courseID=%d]",
+                title, weight, grade, courseID);
+    }
+
 
     public int getCourseID() {
         return courseID;

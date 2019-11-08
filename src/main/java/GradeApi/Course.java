@@ -6,7 +6,7 @@ public class Course {
     public String requirementSatisfaction;
     public double credits;
     public String semesterTaken;
-    public String yearTaken;
+    public int yearTaken;
     public String finalGrade;
 
     public int getId() {
@@ -49,11 +49,11 @@ public class Course {
         this.semesterTaken = semesterTaken;
     }
 
-    public String getYearTaken() {
+    public int getYearTaken() {
         return yearTaken;
     }
 
-    public void setYearTaken(String yearTaken) {
+    public void setYearTaken(int yearTaken) {
         this.yearTaken = yearTaken;
     }
 
@@ -65,7 +65,7 @@ public class Course {
         this.finalGrade = finalGrade;
     }
 
-    Course(int id, String title, String requirementSatisfaction, double credits, String semesterTaken, String yearTaken, String finalGrade) {
+    Course(int id, String title, String requirementSatisfaction, double credits, String semesterTaken, int yearTaken, String finalGrade) {
         this.id = id;
         this.title = title;
         this.requirementSatisfaction = requirementSatisfaction;
@@ -78,7 +78,7 @@ public class Course {
     @Override
     public String toString() {
         return String.format(
-                "Course[id=%d, title='%s', requirementSatisfaction='%s', credits=%f, semesterTaken='%s', yearTaken='%s', finalGrade='%s']",
+                "Course[id=%d, title='%s', requirementSatisfaction='%s', credits=%f, semesterTaken='%s', yearTaken=%d, finalGrade='%s']",
                 id, title, requirementSatisfaction, credits, semesterTaken, yearTaken, finalGrade);
     }
 

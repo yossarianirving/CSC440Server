@@ -12,3 +12,6 @@ CREATE TABLE course(
 	year_taken INT(4) NOT NULL,
 	final_grade CHAR(1)
 ) [42101-199]
+2019-11-08 10:50:03 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CUSTOMERS" not found; SQL statement:
+SELECT id, first_name, last_name FROM customers WHERE first_name = ? [42102-199]
