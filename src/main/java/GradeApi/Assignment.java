@@ -14,6 +14,12 @@ public class Assignment {
         this.courseID = courseID;
     }
 
+
+
+    public Object[] toObjectArray() {
+        return new Object[]{getTitle(), getWeight(), getGrade(), getCourseID()};
+    }
+
     @Override
     public String toString() {
         return String.format(

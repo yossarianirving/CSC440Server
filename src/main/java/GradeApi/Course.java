@@ -75,10 +75,14 @@ public class Course {
         this.finalGrade = finalGrade;
     }
 
+    public Object[] toObjectArray() {
+        return new Object[]{getTitle(), getRequirementSatisfaction(), getCredits(), getSemesterTaken(), getYearTaken(), getFinalGrade()};
+    }
+
     @Override
     public String toString() {
         return String.format(
-                "Course[id=%d, title='%s', requirementSatisfaction='%s', credits=%f, semesterTaken='%s', yearTaken=%d, finalGrade='%s']",
+                "Course[id=%d, title='%s', requirement_satisfaction='%s', credits=%f, semester_taken='%s', year_taken=%d, final_grade='%s']",
                 id, title, requirementSatisfaction, credits, semesterTaken, yearTaken, finalGrade);
     }
 
