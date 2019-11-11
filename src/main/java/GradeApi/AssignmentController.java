@@ -1,27 +1,12 @@
 package GradeApi;
 
-
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.Scanner;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 @Component
@@ -31,6 +16,24 @@ public class AssignmentController {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+    @RequestMapping(path = "/modifyAssignment/{oldTitle}/{newTitle}/{weight}/{grade}/{courseID}", method = RequestMethod.PATCH)
+    public void modifyAssignment(@PathVariable String oldTitle, @PathVariable String newTitle, @PathVariable String weight, @PathVariable String grade, @PathVariable String courseID) throws Exception {
+        jdbcTemplate.update("UPDATE assignment SET title = ?, weight = ?, grade = ? WHERE title = ? AND course_id = ?", new Object[]{newTitle, weight, grade, oldTitle, courseID});
+    }
+
+    @RequestMapping(path = "/deleteAssignment/{title}/{courseID}", method = RequestMethod.DELETE)
+    public void deleteAssignment(@PathVariable String title, @PathVariable String courseID) throws Exception {
+        jdbcTemplate.update("DELETE FROM assignment WHERE title = ? AND course_id = ?", new Object[]{title, courseID});
+    }
+
+    @RequestMapping(path = "/addAssignment/{title}/{weight}/{grade}/{courseID}", method = RequestMethod.POST)
+    public void addAssignment(@PathVariable String title, @PathVariable String weight, @PathVariable String grade, @PathVariable String courseID) throws Exception {
+        Assignment a = new Assignment(title, Double.parseDouble(weight), Double.parseDouble(grade), Integer.parseInt(courseID));
+        List<Object[]> assignmentList = new ArrayList<>();
+        assignmentList.add(a.toObjectArray());
+        jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", assignmentList);
+    }
 
     @GetMapping("/getAssignments")
     public Object[] getAssignments(@RequestParam(value = "courseID", defaultValue = "-1") String courseID) throws Exception {

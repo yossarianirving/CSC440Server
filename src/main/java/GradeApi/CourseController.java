@@ -25,7 +25,7 @@ public class CourseController {
     JdbcTemplate jdbcTemplate;
 
     // Todo add optional parameters
-    // get all coursees
+    // get all courses
     @GetMapping("")
     public Course[] courses() {
         Course[] allCourses = {
