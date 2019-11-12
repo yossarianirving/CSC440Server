@@ -1,10 +1,13 @@
 package GradeApi;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.sql.*;
 import java.util.*;
 
@@ -27,12 +30,22 @@ public class AssignmentController {
         jdbcTemplate.update("DELETE FROM assignment WHERE title = ? AND course_id = ?", new Object[]{title, courseID});
     }
 
-    @RequestMapping(path = "/addAssignment/{title}/{weight}/{grade}/{courseID}", method = RequestMethod.POST)
-    public void addAssignment(@PathVariable String title, @PathVariable String weight, @PathVariable String grade, @PathVariable String courseID) throws Exception {
+    @PostMapping("")
+    public ResponseEntity<Assignment> addAssignment(@RequestBody Assignment newAssignment) {
+        System.out.println("assignment data : " + newAssignment.toString());
+        /*
+        int number =  jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE title = ? AND course_id = ?",new Object[]{title, courseID}, Integer.class);
+        if (number > 0) {
+            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
+        }
+
         Assignment a = new Assignment(title, Double.parseDouble(weight), Double.parseDouble(grade), Integer.parseInt(courseID));
         List<Object[]> assignmentList = new ArrayList<>();
         assignmentList.add(a.toObjectArray());
         jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", assignmentList);
+        */
+
+        return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
     @GetMapping("/getAssignments")

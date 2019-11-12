@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
 @Component
@@ -23,6 +25,59 @@ public class CourseController {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+    // Gets the gen ed element 1 courses that student has taken.
+    public Object[] getGenEdE1Remaining() {
+        List<String> genEdE1Complete = jdbcTemplate.query(
+                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E1"},
+                (rs, rowNum) -> rs.getString(1));
+
+
+
+        return genEdE1Complete.toArray();
+    }
+
+    // Gets the gen ed element 2 courses that student has taken.
+    public Object[] getGenEdE2Remaining() throws Exception {
+        List<String> genEdE1Complete = jdbcTemplate.query(
+                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
+                (rs, rowNum) -> rs.getString(1));
+        return genEdE1Complete.toArray();
+    }
+
+
+    /*
+    assume all concentrations will be:
+        General
+        Statistical Computing
+        Digital Forensics and Cybersecurity
+        Computer Technology
+        Interactive Multimedia
+        Artificial Intelligence in data Science
+     */
+    @GetMapping("/getRemainingRequirements")
+    public Object[] getRemainingRequirements(@RequestParam(value = "concentrationSelection", defaultValue = "General") String concentrationSelection) throws Exception {
+        List<Assignment> assignments = jdbcTemplate.query(
+                "SELECT title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{concentrationSelection},
+                (rs, rowNum) -> new Assignment(rs.getString(1), rs.getDouble(2), rs.getDouble(3), rs.getInt(4))
+        );
+        return assignments.toArray();
+    }
+
+
+    /*
+    Matthew:
+        Remember that course titles are 6 or 7 digits in length.
+        Assume that the digits are stored to the left, i.e.: "CSC190 ", instead of " CSC190" or "CSC 190".
+        Other requirements to check for:
+            Writing intensive course (the only course with a 7-digit title - always ends with a 'W')
+            Upper division coursework (courses ending with digits 300+)
+            ACCT requirement
+            Core
+            Supporting
+            concentration requirements
+            *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
+     */
 
     // Todo add optional parameters
     // get all courses
