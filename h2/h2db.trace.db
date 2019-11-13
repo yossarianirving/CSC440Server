@@ -2876,3 +2876,6 @@ org.h2.jdbc.JdbcSQLDataException: Parameter "#5" is not set [90012-199]
 2019-11-12 17:58:50 jdbc[4]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "COURSE" not found; SQL statement:
 SELECT COUNT(*) FROM course [42102-199]
+2019-11-13 09:07:07 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "id=1"; SQL statement:
+SELECT COUNT(*) FROM course WHERE id = ? [22018-199]
