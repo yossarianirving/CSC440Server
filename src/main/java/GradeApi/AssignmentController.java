@@ -20,31 +20,56 @@ public class AssignmentController {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    @RequestMapping(path = "/modifyAssignment/{oldTitle}/{newTitle}/{weight}/{grade}/{courseID}", method = RequestMethod.PATCH)
-    public void modifyAssignment(@PathVariable String oldTitle, @PathVariable String newTitle, @PathVariable String weight, @PathVariable String grade, @PathVariable String courseID) throws Exception {
-        jdbcTemplate.update("UPDATE assignment SET title = ?, weight = ?, grade = ? WHERE title = ? AND course_id = ?", new Object[]{newTitle, weight, grade, oldTitle, courseID});
+    @PatchMapping("")
+    public ResponseEntity<Assignment> modifyAssignment(@RequestBody Assignment newAssignment) throws Exception {
+        // Assume assignment id won't be modified.
+
+        System.out.println(newAssignment.getTitle());
+
+        // Check that the assignment exists.
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{newAssignment.getId()}, Integer.class);
+        if (count == 0) {
+            return new ResponseEntity<>(newAssignment, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        // Check that the title does not exist for some other assignment.
+        int duplicates = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id != ? AND title = ? AND course_id = ?", new Object[]{newAssignment.getId(), newAssignment.getTitle(), newAssignment.getCourseID()}, Integer.class);
+        if (duplicates > 0) {
+            return new ResponseEntity<>(newAssignment, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        jdbcTemplate.update("UPDATE assignment SET title = ?, weight = ?, grade = ? WHERE id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getWeight(), newAssignment.getGrade(), newAssignment.getId()});
+        return new ResponseEntity<>(newAssignment, HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/deleteAssignment/{title}/{courseID}", method = RequestMethod.DELETE)
-    public void deleteAssignment(@PathVariable String title, @PathVariable String courseID) throws Exception {
-        jdbcTemplate.update("DELETE FROM assignment WHERE title = ? AND course_id = ?", new Object[]{title, courseID});
+    @DeleteMapping()
+    public ResponseEntity<Assignment> deleteAssignment(@RequestBody Assignment assignment) throws Exception {
+        // Check that the assignment exists.
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{assignment.getId()}, Integer.class);
+        if (count == 0) {
+            return new ResponseEntity<>(assignment, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+        jdbcTemplate.update("DELETE FROM assignment WHERE id = ?", new Object[]{assignment.getId()});
+        return new ResponseEntity<>(assignment, HttpStatus.OK);
     }
+
 
     @PostMapping("")
     public ResponseEntity<Assignment> addAssignment(@RequestBody Assignment newAssignment) {
-        System.out.println("assignment data : " + newAssignment.toString());
-        /*
-        int number =  jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE title = ? AND course_id = ?",new Object[]{title, courseID}, Integer.class);
+        // Check that the assignment does not already exist.
+        int number = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE (title = ? AND course_id = ?) OR id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getCourseID(), newAssignment.getId()}, Integer.class);
         if (number > 0) {
-            return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
+            return new ResponseEntity<>(newAssignment, HttpStatus.ALREADY_REPORTED);
         }
 
-        Assignment a = new Assignment(title, Double.parseDouble(weight), Double.parseDouble(grade), Integer.parseInt(courseID));
+        // Check that the course exists.
+        int courseCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{newAssignment.getCourseID()}, Integer.class);
+        if (courseCount == 0) {
+            return new ResponseEntity<>(newAssignment, HttpStatus.METHOD_NOT_ALLOWED);
+        }
         List<Object[]> assignmentList = new ArrayList<>();
-        assignmentList.add(a.toObjectArray());
-        jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", assignmentList);
-        */
-
+        assignmentList.add(newAssignment.toObjectArray());
+        jdbcTemplate.batchUpdate("INSERT INTO assignment(id, title, weight, grade, course_id) VALUES (?,?,?,?,?)", assignmentList);
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
@@ -54,8 +79,8 @@ public class AssignmentController {
             createAssignmentTable();
         }
         List<Assignment> assignments = jdbcTemplate.query(
-                "SELECT title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{courseID},
-                (rs, rowNum) -> new Assignment(rs.getString(1), rs.getDouble(2), rs.getDouble(3), rs.getInt(4))
+                "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{courseID},
+                (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
         );
         return assignments.toArray();
     }
@@ -89,16 +114,14 @@ public class AssignmentController {
         }
 
         jdbcTemplate.execute("CREATE TABLE assignment(\n" +
+                "\tid INT PRIMARY KEY,\n" +
                 "\ttitle CHAR(50),\n" +
                 "\tweight DOUBLE NOT NULL,\n" +
                 "\tgrade DOUBLE NOT NULL,\n" +
                 "\tcourse_id INT NOT NULL, \n" +
                 "\tCONSTRAINT course_id_constraint FOREIGN KEY (course_id) REFERENCES course(id),\n" +
-                "\tPRIMARY KEY (title, course_id)\n" +
+                "\tUNIQUE (title, course_id)\n" +
                 ")");
-        System.out.println("created assignment table");
-        testInsertsStatements();
-        System.out.println("done inserting");
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -123,6 +146,12 @@ public class AssignmentController {
         jdbcTemplate.execute("DROP TABLE assignment");
         jdbcTemplate.execute("DROP TABLE course");
 
+        try {
+            createAssignmentTable();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
         // Attempt to insert some data into the tables.
         List<Object[]> c = new ArrayList<>();
 
@@ -132,10 +161,10 @@ public class AssignmentController {
         c.add(c1.toObjectArray());
         c.add(c2.toObjectArray());
 
-        Assignment a1 = new Assignment("Test 1", 10, 98.5, 1);
-        Assignment a2 = new Assignment("Test 2", 10, 93.5, 1);
-        Assignment a3 = new Assignment("Quiz 1", 4.25, 88, 1);
-        Assignment a4 = new Assignment("assignment 1", 5.5, 100, 2);
+        Assignment a1 = new Assignment(1, "Test 1", 10, 98.5, 1);
+        Assignment a2 = new Assignment(2, "Test 2", 10, 93.5, 1);
+        Assignment a3 = new Assignment(3, "Quiz 1", 4.25, 88, 1);
+        Assignment a4 = new Assignment(4, "assignment 1", 5.5, 100, 2);
 
         List<Object[]> a = new ArrayList<>();
         a.add(a1.toObjectArray());
@@ -156,7 +185,7 @@ public class AssignmentController {
         System.out.println("Querying for assignments:");
         jdbcTemplate.query(
                 "SELECT * FROM assignment",
-                (rs, rowNum) -> new Assignment(rs.getString(1), rs.getDouble(2), rs.getDouble(3), rs.getInt(4))
+                (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
         ).forEach(assignment -> System.out.println(assignment.getTitle() + ", " + assignment.getWeight() + ", " + assignment.getGrade() + ", " + assignment.getCourseID()));
     }
     //////////////////////////////////////////////////////////////////////

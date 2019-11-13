@@ -76,7 +76,7 @@ public class Course {
     }
 
     public Object[] toObjectArray() {
-        return new Object[]{getTitle(), getRequirementSatisfaction(), getCredits(), getSemesterTaken(), getYearTaken(), getFinalGrade()};
+        return new Object[]{getId(), getTitle(), getRequirementSatisfaction(), getCredits(), getSemesterTaken(), getYearTaken(), getFinalGrade()};
     }
 
     @Override
