@@ -33,7 +33,6 @@ public class CourseController {
                 (rs, rowNum) -> rs.getString(1));
 
 
-
         return genEdE1Complete.toArray();
     }
 
@@ -79,30 +78,27 @@ public class CourseController {
             *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
      */
 
-    // Todo add optional parameters
+    // Todo get all courses
     // get all courses
     @GetMapping("")
-    public Course[] courses() {
-        Course[] allCourses = {
-                new Course(1, "CSC190", "Core", 3, "FALL", 2016, "B"),
-                new Course(2, "CSC308", "Supporting", 3, "SPRING", 2018, "A")
-        };
-
-        return allCourses;
+    public ResponseEntity<Object[]> getCourses() throws Exception {
+        List<Course> courses = jdbcTemplate.query(
+                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
+        );
+        return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
     }
 
     // TODO add get single course functionality
     // get one course
     @GetMapping("{id}")
-    public ResponseEntity<Course> getcourse(@PathVariable("id") int id) {
-        Course[] allCourses = {
-                new Course(1, "CSC190", "Core", 3, "FALL", 2016, "B"),
-                new Course(2, "CSC308", "Supporting", 3, "SPRING", 2018, "A")
-        };
-        if (id > allCourses.length) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) {
+        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
+        if (courseExistsCount == 0) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(allCourses[id - 1], HttpStatus.OK);
+        List<Course> course = jdbcTemplate.query(
+                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id = ?", new Object[]{id}, (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7)));
+        return new ResponseEntity<>(course.toArray(), HttpStatus.OK);
     }
 
     // TODO add Add course functionality

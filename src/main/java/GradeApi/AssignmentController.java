@@ -80,29 +80,20 @@ public class AssignmentController {
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        List<Assignment> assignments = jdbcTemplate.query(
+        List<Assignment> assignment = jdbcTemplate.query(
                 "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{id},
                 (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
         );
-        return new ResponseEntity<>(assignments.toArray(), HttpStatus.OK);
+        return new ResponseEntity<>(assignment.toArray(), HttpStatus.OK);
     }
 
     public boolean assignmentTableExists() throws Exception {
-        Connection conn = null;
-        Statement stmt = null;
-
-        Class.forName("org.h2.Driver");
-        conn = DriverManager.getConnection("jdbc:h2:./h2/h2db", "sa", "");
-        stmt = conn.createStatement();
         try {
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM assignment");
+            int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment", Integer.class);
         } catch (Exception e) {
             if (e.getMessage().contains("Table \"ASSIGNMENT\" not found")) {  // Assignment table doesn't exist.
                 return false;
             }
-        } finally {
-            stmt.close();
-            conn.close();
         }
         return true;
     }
