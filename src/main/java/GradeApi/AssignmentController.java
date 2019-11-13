@@ -1,5 +1,6 @@
 package GradeApi;
 
+import javafx.beans.property.ReadOnlyListProperty;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,16 +74,16 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
-    @GetMapping("/getAssignments")
-    public Object[] getAssignments(@RequestParam(value = "courseID", defaultValue = "-1") String courseID) throws Exception {
+    @GetMapping("")
+    public ResponseEntity<Object[]> getAssignments(@RequestBody Assignment assignment) throws Exception {
         if (!assignmentTableExists()) {  // If the assignment table doesn't exist, then have it created.
             createAssignmentTable();
         }
         List<Assignment> assignments = jdbcTemplate.query(
-                "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{courseID},
+                "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{assignment.getId()},
                 (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
         );
-        return assignments.toArray();
+        return new ResponseEntity<>(assignments.toArray(), HttpStatus.OK);
     }
 
     public boolean assignmentTableExists() throws Exception {
