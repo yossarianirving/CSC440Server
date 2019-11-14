@@ -46,11 +46,98 @@ public class CourseController {
     }
 
     // Gets the gen ed element 2 courses that student has taken.
-    public Object[] getGenEdE2Remaining() throws Exception {
-        List<String> genEdE2Complete = jdbcTemplate.query(
-                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
-                (rs, rowNum) -> rs.getString(1));
-        return genEdE2Complete.toArray();
+    public String getGenEdE2Remaining() {
+        List<Double> genEdE2Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE2Complete.size(); i++){
+            sum += genEdE2Complete.get(i);
+        }
+        sum = 0 - sum;
+        if ( sum <= 0 ){
+            return "Gen Ed 2 satisfied.";
+        } else {
+            return "Gen Ed 2 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 3 courses that student has taken.
+    public String getGenEdE3Remaining() {
+        List<Double> genEdE3Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E3"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE3Complete.size(); i++){
+            sum += genEdE3Complete.get(i);
+        }
+        sum = 6 - sum;
+        if ( sum <= 0 ){
+            return "Gen Ed 3 satisfied.";
+        } else {
+            return "Gen Ed 3 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 4 courses that student has taken.
+    public String getGenEdE4Remaining() {
+        List<Double> genEdE4Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E4"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE4Complete.size(); i++){
+            sum += genEdE4Complete.get(i);
+        }
+        sum = 6 - sum;
+        if ( sum <= 0 ){
+            return "Gen Ed 4 satisfied.";
+        } else {
+            return "Gen Ed 4 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 5 courses that student has taken.
+    public String getGenEdE5Remaining() {
+        List<Double> genEdE5Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E5"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE5Complete.size(); i++){
+            sum += genEdE5Complete.get(i);
+        }
+        sum = 6 - sum;
+        if ( sum <= 0 ){
+            return "Gen Ed 5 satisfied.";
+        } else {
+            return "Gen Ed 5 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 5 courses that student has taken.
+    public String getGenEdE6Remaining() {
+        List<Double> genEdE6Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E6"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE6Complete.size(); i++){
+            sum += genEdE6Complete.get(i);
+        }
+        sum = 6 - sum;
+        if ( sum <= 0 ){
+            return "Gen Ed 6 satisfied.";
+        } else {
+            return "Gen Ed 6 needs " + sum + " credit hours.";
+        }
+
     }
 
 
