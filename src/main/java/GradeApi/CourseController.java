@@ -120,7 +120,6 @@ public class CourseController {
     // Add course
     @PostMapping("")
     public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) {
-        System.out.println("id : " + newCourse.getId() + " title : " + newCourse.getTitle());
         // Don't allow two courses with same title to be taken in same year and semester.
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getId(), newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
         if (courseExistsCount > 0) {
