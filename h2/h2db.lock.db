@@ -1,6 +1,6 @@
 #FileLock
-#Wed Nov 13 13:13:39 EST 2019
-server=localhost\:60342
-hostName=localhost
+#Thu Nov 14 12:57:23 EST 2019
+hostName=HPMXL3170VQ7.student.eku.edu
+id=16e6b10022a0c9ce9aaf41807349b0ffe3215cd594e
 method=file
-id=16e65f88699f4961844181d2b50d0738680595abffe
+server=157.89.105.219\:50633
