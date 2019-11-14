@@ -55,7 +55,7 @@ public class CourseController {
         for (int i = 0; i < genEdE2Complete.size(); i++){
             sum += genEdE2Complete.get(i);
         }
-        sum = 0 - sum;
+        sum = 3 - sum;
         if ( sum <= 0 ){
             return "Gen Ed 2 satisfied.";
         } else {
