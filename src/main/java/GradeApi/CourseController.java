@@ -78,7 +78,6 @@ public class CourseController {
             *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
      */
 
-    // Todo get all courses
     // get all courses
     @GetMapping("")
     public ResponseEntity<Object[]> getCourses() throws Exception {
@@ -88,7 +87,6 @@ public class CourseController {
         return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
     }
 
-    // TODO add get single course functionality
     // get one course
     @GetMapping("{id}")
     public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) {
@@ -101,14 +99,81 @@ public class CourseController {
         return new ResponseEntity<>(course.toArray(), HttpStatus.OK);
     }
 
-    // TODO add Add course functionality
-    // Add course
-    @PostMapping("")
-    public ResponseEntity<Course> addcourse(@RequestBody Course newcourse) {
-        newcourse.id = 34;
-        return new ResponseEntity<>(newcourse, HttpStatus.CREATED);
+    // modify a course
+    @PatchMapping()
+    public ResponseEntity<Course> modifyCourse(@RequestBody Course course) {
+        // Don't allow two courses with same title to be taken in same year and semester.
+        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{course.getId(), course.getTitle(), course.getSemesterTaken(), course.getYearTaken()}, Integer.class);
+        if (courseExistsCount > 0) {
+            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        // Check that the requirement satisfaction is a valid type.
+        if (!validRequirementSatisfaction(course.getRequirementSatisfaction())){
+            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        jdbcTemplate.update("UPDATE course SET title = ?, requirement_satisfaction = ?, credits = ?, semester_taken = ?, year_taken = ?, final_grade = ? WHERE id = ?", new Object[]{course.getTitle(), course.getRequirementSatisfaction(), course.getCredits(), course.getSemesterTaken(), course.getYearTaken(), course.getFinalGrade(), course.getId()});
+        return new ResponseEntity<>(course, HttpStatus.OK);
     }
 
+    // Add course
+    @PostMapping("")
+    public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) {
+        System.out.println("id : " + newCourse.getId() + " title : " + newCourse.getTitle());
+        // Don't allow two courses with same title to be taken in same year and semester.
+        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getId(), newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
+        if (courseExistsCount > 0) {
+            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        // Check that the requirement satisfaction is a valid type.
+        if (!validRequirementSatisfaction(newCourse.getRequirementSatisfaction())){
+            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        // Turn the course instance into an array.
+        List<Object[]> courseList = new ArrayList<>();
+        courseList.add(newCourse.toObjectArray());
+        jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", courseList);
+        return new ResponseEntity<>(newCourse, HttpStatus.OK);
+    }
+
+
+    // Delete course
+    @DeleteMapping()
+    public ResponseEntity<Course> deleteAssignment(@RequestBody Course course) throws Exception {
+        // Check that the course exists.
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{course.getId()}, Integer.class);
+        if (count == 0) {
+            return new ResponseEntity<>(course, HttpStatus.NOT_FOUND);
+        }
+        jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{course.getId()});
+        return new ResponseEntity<>(course, HttpStatus.OK);
+    }
+
+
+
+    public boolean validRequirementSatisfaction(String requirementSatisfaction) {
+        switch (requirementSatisfaction) {
+            case "Supporting":
+            case "Core":
+            case "Concentration":
+            case "ACCT":
+            case "Writing Intensive":
+            case "Gen Ed E1":
+            case "Gen Ed E2":
+            case "Gen Ed E3":
+            case "Gen Ed E4":
+            case "Gen Ed E5":
+            case "Gen Ed E6":
+            case "Upper Division":
+            case "Free Elective":
+                return true;
+            default:
+                return false;
+        }
+    }
 
     public boolean courseTableExists() throws Exception {
         Connection conn = null;
@@ -145,7 +210,8 @@ public class CourseController {
                 "\tcredits DOUBLE NOT NULL,\n" +
                 "\tsemester_taken CHAR(12) NOT NULL,\n" +
                 "\tyear_taken INT(4) NOT NULL,\n" +
-                "\tfinal_grade CHAR(1)\n" +
+                "\tfinal_grade CHAR(1),\n" +
+                "\tUNIQUE (title, semester_taken, year_taken)\n" +
                 ")");
         stmt.close();
         conn.close();

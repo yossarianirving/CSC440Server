@@ -48,7 +48,7 @@ public class AssignmentController {
         // Check that the assignment exists.
         int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{assignment.getId()}, Integer.class);
         if (count == 0) {
-            return new ResponseEntity<>(assignment, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(assignment, HttpStatus.NOT_FOUND);
         }
         jdbcTemplate.update("DELETE FROM assignment WHERE id = ?", new Object[]{assignment.getId()});
         return new ResponseEntity<>(assignment, HttpStatus.OK);
