@@ -54,14 +54,6 @@ public class CourseController {
         Interactive Multimedia
         Artificial Intelligence in data Science
      */
-    @GetMapping("/getRemainingRequirements")
-    public Object[] getRemainingRequirements(@RequestParam(value = "concentrationSelection", defaultValue = "General") String concentrationSelection) throws Exception {
-        List<Assignment> assignments = jdbcTemplate.query(
-                "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{concentrationSelection},
-                (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
-        );
-        return assignments.toArray();
-    }
 
 
     /*

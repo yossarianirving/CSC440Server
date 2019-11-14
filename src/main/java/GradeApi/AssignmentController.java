@@ -2,6 +2,7 @@ package GradeApi;
 
 import javafx.beans.property.ReadOnlyListProperty;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -74,14 +75,14 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<Object[]> getAssignments(@PathVariable("id") String id) throws Exception {
-        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
+    @GetMapping("")
+    public ResponseEntity<Object[]> getAssignments(@Param("courseID") String courseID) throws Exception {
+        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{courseID}, Integer.class);
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         List<Assignment> assignment = jdbcTemplate.query(
-                "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{id},
+                "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{courseID},
                 (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
         );
         return new ResponseEntity<>(assignment.toArray(), HttpStatus.OK);
