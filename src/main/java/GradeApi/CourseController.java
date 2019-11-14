@@ -27,22 +27,32 @@ public class CourseController {
     JdbcTemplate jdbcTemplate;
 
     // Gets the gen ed element 1 courses that student has taken.
-    public Object[] getGenEdE1Remaining() {
-        List<String> genEdE1Complete = jdbcTemplate.query(
-                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E1"},
-                (rs, rowNum) -> rs.getString(1));
+    public String getGenEdE1Remaining() {
+        List<Double> genEdE1Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E1"},
+                (rs, rowNum) -> rs.getDouble(1));
 
+        double sum = 0;
+        for (int i = 0; i < genEdE1Complete.size(); i++){
+            sum += genEdE1Complete.get(i);
+        }
+        sum = 9 - sum;
+        if ( sum <= 0 ){
+            return "Gen Ed 1 satisfied.";
+        } else {
+            return "Gen Ed 1 needs " + sum + " credit hours.";
+        }
 
-        return genEdE1Complete.toArray();
     }
 
     // Gets the gen ed element 2 courses that student has taken.
     public Object[] getGenEdE2Remaining() throws Exception {
-        List<String> genEdE1Complete = jdbcTemplate.query(
+        List<String> genEdE2Complete = jdbcTemplate.query(
                 "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
                 (rs, rowNum) -> rs.getString(1));
-        return genEdE1Complete.toArray();
+        return genEdE2Complete.toArray();
     }
+
 
 
     /*
