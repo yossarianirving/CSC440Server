@@ -75,6 +75,7 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
+    // Get all assignments for one course.
     @GetMapping("")
     public ResponseEntity<Object[]> getAssignments(@Param("courseID") String courseID) throws Exception {
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{courseID}, Integer.class);

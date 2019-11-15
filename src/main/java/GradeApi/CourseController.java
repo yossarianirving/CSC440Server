@@ -2,6 +2,7 @@ package GradeApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -70,18 +71,20 @@ public class CourseController {
             *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
      */
 
-    // get all courses
+
+
+    // get all courses that have a final grade
     @GetMapping("")
     public ResponseEntity<Object[]> getCourses() throws Exception {
         List<Course> courses = jdbcTemplate.query(
-                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
+                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE final_grade IS NOT NULL", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
         );
         return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
     }
 
-    // get one course
-    @GetMapping("{id}")
-    public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) {
+    // get information for one course
+    @GetMapping("")
+    public ResponseEntity<Object[]> getCourse(@Param("id") String id) {
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -124,6 +127,8 @@ public class CourseController {
         }
 
         // Turn the course instance into an array.
+        newCourse.setSemesterTaken(newCourse.getSemesterTaken().toUpperCase());  // Make all semesters uppercase.
+        System.out.println(newCourse.getSemesterTaken());
         List<Object[]> courseList = new ArrayList<>();
         courseList.add(newCourse.toObjectArray());
         jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", courseList);
@@ -142,8 +147,6 @@ public class CourseController {
         jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{course.getId()});
         return new ResponseEntity<>(course, HttpStatus.OK);
     }
-
-
 
     public boolean validRequirementSatisfaction(String requirementSatisfaction) {
         switch (requirementSatisfaction) {
