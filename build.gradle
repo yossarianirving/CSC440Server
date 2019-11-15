@@ -26,6 +26,21 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    runtimeOnly 'com.h2database:h2'
     compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+// [2] Create a task of type 'JavaExec', referencing
+//     a Groovy script and any input arguments.
+task runScript(type: JavaExec) {
+    description 'Run a Groovy script to sync the environment config registry with the properties files in source control'
+    classpath = sourceSets.main.runtimeClasspath
+    main 'com.mypackage.SyncScript'
+    args Arrays.asList('jdbc:mysql://registry/grades', 'com.mysql.jdbc.Driver', 'root', '').toArray()
+}
+
+
+// [3] Tell Gradle to invoke your Groovy script task.
+defaultTasks 'runScript'
