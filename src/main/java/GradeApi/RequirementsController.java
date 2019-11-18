@@ -181,7 +181,7 @@ public class RequirementsController {
 
     }
 
-    // Checks if upper division hours have been met
+    // Checks if core courses have been completed
     public String[] getCoreRemaining() {
         List<String> coreComplete = jdbcTemplate.query(
                 "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"CSC%"},
@@ -226,18 +226,146 @@ public class RequirementsController {
 
         return coreStatus;
     }
-}
 
 
     /*
     assume all concentrations will be:
         General
-        Statistical Computing
         Digital Forensics and Cybersecurity
         Computer Technology
         Interactive Multimedia
         Artificial Intelligence in data Science
      */
+
+    // Checks if upper division hours have been met
+    public String[] getSupportingRemaining() {
+        String[] supportingStatus = new String[10];
+
+        // Code to get concentration
+        String concentration = "General";
+
+        List<String> supportingComplete = jdbcTemplate.query(
+                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"CSC%"},
+                (rs, rowNum) -> rs.getString(1));
+        String[] coreStatus = new String[6];
+
+        if ( concentration.equals("General") ){
+
+            // Checks each course to make sure that they have completed General concentration
+            if( supportingComplete.contains("EET252 ") ){
+                coreStatus[0] = "Credit for EET252 is satisfied.";
+            } else {
+                coreStatus[0] = "3 hours still needed for EET252.";
+            }
+
+            if( supportingComplete.contains("MAT234 ") ){
+                coreStatus[1] = "Credit for MAT234 is satisfied.";
+            } else {
+                coreStatus[1] = "4 hours still needed for MAT234.";
+            }
+
+            if( supportingComplete.contains("MAT239 ") ){
+                coreStatus[2] = "Credit for MAT239 is satisfied.";
+            } else {
+                coreStatus[2] = "3 hours still needed for MAT239.";
+            }
+
+            if( supportingComplete.contains("MAT244 ") ){
+                coreStatus[3] = "Credit for MAT244 is satisfied.";
+            } else {
+                coreStatus[3] = "4 hours still needed for MAT244.";
+            }
+
+            if( supportingComplete.contains("STA270 ") ){
+                coreStatus[4] = "Credit for STA270 is satisfied.";
+            } else {
+                coreStatus[4] = "3 hours still needed for STA270.";
+            }
+
+            if(     (supportingComplete.contains("BIO111 ") && supportingComplete.contains("BIO112 ")) ||
+                    (supportingComplete.contains("CHE111 ") && supportingComplete.contains("CHE111L") &&
+                            (supportingComplete.contains("CHE112 ") && supportingComplete.contains("CHE112L"))) ||
+                    (supportingComplete.contains("GLY108 ") && supportingComplete.contains("GLY109 ")) ||
+                    (supportingComplete.contains("PHY201 ") && supportingComplete.contains("PHY202 "))
+            ){
+
+                coreStatus[5] = "Credit for Physical Science sequence is satisfied.";
+                if( supportingComplete.contains("BIO111 ") && supportingComplete.contains("BIO112 ") ){
+                    supportingComplete.remove("BIO111 ");
+                    supportingComplete.remove("BIO112 ");
+
+                } else if ( supportingComplete.contains("CHE111 ") && supportingComplete.contains("CHE111L") &&
+                            supportingComplete.contains("CHE112 ") && supportingComplete.contains("CHE112L") ){
+                    supportingComplete.remove("CHE111 ");
+                    supportingComplete.remove("CHE111L");
+                    supportingComplete.remove("CHE112 ");
+                    supportingComplete.remove("CHE112L");
+
+                } else if ( supportingComplete.contains("GLY108 ") && supportingComplete.contains("GLY109 ") ){
+                    supportingComplete.remove("GLY108 ");
+                    supportingComplete.remove("GLY109 ");
+
+                } else if ( supportingComplete.contains("PHY201 ") && supportingComplete.contains("PHY202 ") ){
+                    supportingComplete.remove("PHY201 ");
+                    supportingComplete.remove("PHY202 ");
+                }
+            } else {
+                coreStatus[5] = "Credit for a Physical Science sequence needed.";
+            }
+
+            boolean extraPhyscialScience = false;
+            if( (supportingComplete.contains("BIO111 ") || supportingComplete.contains("BIO112 ")) &&
+                    ((supportingComplete.contains("CHE111 ") && supportingComplete.contains("CHE111L")) ||
+                            (supportingComplete.contains("CHE112 ") && supportingComplete.contains("CHE112L")))){
+                extraPhyscialScience = true;
+            } else if( (supportingComplete.contains("BIO111 ") || supportingComplete.contains("BIO112 ")) &&
+                    (supportingComplete.contains("GLY108 ") || supportingComplete.contains("GLY109 "))
+            ){
+                extraPhyscialScience = true;
+            } else if( (supportingComplete.contains("BIO111 ") || supportingComplete.contains("BIO112 ")) &&
+                    (supportingComplete.contains("PHY201 ") || supportingComplete.contains("PHY202 "))
+            ){
+                extraPhyscialScience = true;
+            } else if ( ((supportingComplete.contains("CHE111 ") && supportingComplete.contains("CHE111L")) ||
+                    (supportingComplete.contains("CHE112 ") && supportingComplete.contains("CHE112L"))) &&
+                    (supportingComplete.contains("GLY108 ") || supportingComplete.contains("GLY109 "))
+            ){
+                extraPhyscialScience = true;
+            } else if ( ((supportingComplete.contains("CHE111 ") && supportingComplete.contains("CHE111L")) ||
+                    (supportingComplete.contains("CHE112 ") && supportingComplete.contains("CHE112L"))) &&
+                    (supportingComplete.contains("PHY201 ") || supportingComplete.contains("PHY202 "))
+            ){
+                extraPhyscialScience = true;
+            } else if( (supportingComplete.contains("GLY108 ") || supportingComplete.contains("GLY109 ")) &&
+                    (supportingComplete.contains("PHY201 ") || supportingComplete.contains("PHY202 "))
+            ){
+                extraPhyscialScience = true;
+            }
+
+            if ( extraPhyscialScience ){
+                coreStatus[6] = "Credit for additional Physical Science is satisfied.";
+            } else {
+                coreStatus[6] = "Still need courses for additional Physical Science.";
+            }
+
+
+        } else if ( concentration.equals("Digital Forensics and Cybersecurity") ){
+
+        } else if ( concentration.equals("Computer Technology")){
+
+        } else if ( concentration.equals("Interactive Multimedia")){
+
+        } else if ( concentration.equals("Artificial Intelligence in data Science")){
+
+        }
+
+        return coreStatus;
+    }
+
+}
+
+
+
 
 
     /*
