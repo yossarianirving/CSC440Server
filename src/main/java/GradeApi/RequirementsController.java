@@ -247,39 +247,38 @@ public class RequirementsController {
         List<String> supportingComplete = jdbcTemplate.query(
                 "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"CSC%"},
                 (rs, rowNum) -> rs.getString(1));
-        String[] coreStatus = new String[6];
 
         if ( concentration.equals("General") ){
 
             // Checks each course to make sure that they have completed General concentration
             if( supportingComplete.contains("EET252 ") ){
-                coreStatus[0] = "Credit for EET252 is satisfied.";
+                supportingStatus[0] = "Credit for EET252 is satisfied.";
             } else {
-                coreStatus[0] = "3 hours still needed for EET252.";
+                supportingStatus[0] = "3 hours still needed for EET252.";
             }
 
             if( supportingComplete.contains("MAT234 ") ){
-                coreStatus[1] = "Credit for MAT234 is satisfied.";
+                supportingStatus[1] = "Credit for MAT234 is satisfied.";
             } else {
-                coreStatus[1] = "4 hours still needed for MAT234.";
+                supportingStatus[1] = "4 hours still needed for MAT234.";
             }
 
             if( supportingComplete.contains("MAT239 ") ){
-                coreStatus[2] = "Credit for MAT239 is satisfied.";
+                supportingStatus[2] = "Credit for MAT239 is satisfied.";
             } else {
-                coreStatus[2] = "3 hours still needed for MAT239.";
+                supportingStatus[2] = "3 hours still needed for MAT239.";
             }
 
             if( supportingComplete.contains("MAT244 ") ){
-                coreStatus[3] = "Credit for MAT244 is satisfied.";
+                supportingStatus[3] = "Credit for MAT244 is satisfied.";
             } else {
-                coreStatus[3] = "4 hours still needed for MAT244.";
+                supportingStatus[3] = "4 hours still needed for MAT244.";
             }
 
             if( supportingComplete.contains("STA270 ") ){
-                coreStatus[4] = "Credit for STA270 is satisfied.";
+                supportingStatus[4] = "Credit for STA270 is satisfied.";
             } else {
-                coreStatus[4] = "3 hours still needed for STA270.";
+                supportingStatus[4] = "3 hours still needed for STA270.";
             }
 
             if(     (supportingComplete.contains("BIO111 ") && supportingComplete.contains("BIO112 ")) ||
@@ -289,7 +288,7 @@ public class RequirementsController {
                     (supportingComplete.contains("PHY201 ") && supportingComplete.contains("PHY202 "))
             ){
 
-                coreStatus[5] = "Credit for Physical Science sequence is satisfied.";
+                supportingStatus[5] = "Credit for Physical Science sequence is satisfied.";
                 if( supportingComplete.contains("BIO111 ") && supportingComplete.contains("BIO112 ") ){
                     supportingComplete.remove("BIO111 ");
                     supportingComplete.remove("BIO112 ");
@@ -310,7 +309,7 @@ public class RequirementsController {
                     supportingComplete.remove("PHY202 ");
                 }
             } else {
-                coreStatus[5] = "Credit for a Physical Science sequence needed.";
+                supportingStatus[5] = "Credit for a Physical Science sequence needed.";
             }
 
             boolean extraPhyscialScience = false;
@@ -343,13 +342,122 @@ public class RequirementsController {
             }
 
             if ( extraPhyscialScience ){
-                coreStatus[6] = "Credit for additional Physical Science is satisfied.";
+                supportingStatus[6] = "Credit for additional Physical Science is satisfied.";
             } else {
-                coreStatus[6] = "Still need courses for additional Physical Science.";
+                supportingStatus[6] = "Still need courses for additional Physical Science.";
             }
 
 
         } else if ( concentration.equals("Digital Forensics and Cybersecurity") ){
+
+            // Checks each course to make sure that they have completed Digital Forensics and Cybersecurity concentration
+            if( supportingComplete.contains("CMS210 ") ){
+                supportingStatus[0] = "Credit for CMS210 is satisfied.";
+            } else {
+                supportingStatus[0] = "3 hours still needed for CMS210.";
+            }
+
+            if( supportingComplete.contains("FOR301 ") ){
+                supportingStatus[1] = "Credit for FOR301 is satisfied.";
+            } else {
+                supportingStatus[1] = "3 hours still needed for FOR301.";
+            }
+
+            if( supportingComplete.contains("FOR401 ") ){
+                supportingStatus[2] = "Credit for FOR401 is satisfied.";
+            } else {
+                supportingStatus[2] = "3 hours still needed for FOR401.";
+            }
+
+            if( supportingComplete.contains("FOR465 ") ){
+                supportingStatus[3] = "Credit for FOR465 is satisfied.";
+            } else {
+                supportingStatus[3] = "3 hours still needed for FOR465.";
+            }
+
+            if( supportingComplete.contains("MAT234 ") ){
+                supportingStatus[4] = "Credit for MAT234 is satisfied.";
+            } else {
+                supportingStatus[4] = "4 hours still needed for MAT234.";
+            }
+
+            if( supportingComplete.contains("STA270 ") ){
+                supportingStatus[5] = "Credit for STA270 is satisfied.";
+            } else {
+                supportingStatus[5] = "4 hours still needed for STA270.";
+            }
+
+            // Checks if they have completed their physical science requirement
+            int physcialScienceCount = 0;
+            if( supportingComplete.contains("BIO111 ") ){
+                physcialScienceCount++;
+            }
+            if( supportingComplete.contains("CHE111 ") || supportingComplete.contains("CHE111L") ){
+                physcialScienceCount++;
+            }
+            if( supportingComplete.contains("PHY201 ") ){
+                physcialScienceCount++;
+            }
+            if( physcialScienceCount >= 2 ){
+                supportingStatus[6] = "Credit for physical science is satisfied.";
+            } else {
+                supportingStatus[6] = "Still need 2 courses in BIO111 or CHE111 and CHE111L or PHY201.";
+            }
+
+            // Checks if they have completed their restricted elective A requirement
+            int reA = 0;
+            if( supportingComplete.contains("CRJ101 ") ){
+                reA++;
+            }
+            if( supportingComplete.contains("PLS216 ") ){
+                reA++;
+            }
+            if( supportingComplete.contains("PLS316 ") ){
+                reA++;
+            }
+            if( supportingComplete.contains("PLS316 ") ){
+                reA++;
+            }
+            if( reA >= 2 ){
+                supportingStatus[7] = "Credit for Restricted Elective A is satisfied.";
+            } else {
+                supportingStatus[7] = "Still need 2 courses in CRJ101 or PLS216 or PLS316 or PLS316.";
+            }
+
+            // Checks if they have completed their restricted elective B requirement
+            int reB = 0;
+            if( supportingComplete.contains("CIS320 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("CIS325 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("HLS400 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("HLS401 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("HLS402 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("HLS403 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("NET303 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("NET354 ") ){
+                reB++;
+            }
+            if( supportingComplete.contains("NET454 ") ){
+                reB++;
+            }
+            if( reB >= 2 ){
+                supportingStatus[8] = "Credit for Restricted Elective B is satisfied.";
+            } else {
+                supportingStatus[8] = "Still need 2 courses in CIS320 or CIS325 or HLS400 or HLS401 or HLS402 or HLS403 or NET303 or NET354 or NET454.";
+            }
 
         } else if ( concentration.equals("Computer Technology")){
 
@@ -359,7 +467,7 @@ public class RequirementsController {
 
         }
 
-        return coreStatus;
+        return supportingStatus;
     }
 
 }
