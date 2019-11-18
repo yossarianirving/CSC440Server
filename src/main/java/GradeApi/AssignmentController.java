@@ -1,6 +1,5 @@
 package GradeApi;
 
-import javafx.beans.property.ReadOnlyListProperty;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.sql.*;
 import java.util.*;
 
 @SpringBootApplication
@@ -22,6 +19,7 @@ public class AssignmentController {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    // modify an assignment (could change title, weight, grade or any combination of these)
     @PatchMapping("")
     public ResponseEntity<Assignment> modifyAssignment(@RequestBody Assignment newAssignment) throws Exception {
         // Assume assignment id won't be modified.
@@ -67,7 +65,7 @@ public class AssignmentController {
         // Check that the course exists.
         int courseCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{newAssignment.getCourseID()}, Integer.class);
         if (courseCount == 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
         }
         List<Object[]> assignmentList = new ArrayList<>();
         assignmentList.add(newAssignment.toObjectArray());
@@ -75,7 +73,6 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
-    // Get all assignments for one course.
     @GetMapping("")
     public ResponseEntity<Object[]> getAssignments(@Param("courseID") String courseID) throws Exception {
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{courseID}, Integer.class);
@@ -123,21 +120,6 @@ public class AssignmentController {
     // BELOW IS FOR TESTING PURPOSES ONLY. ///////////////////////////////
     //////////////////////////////////////////////////////////////////////
     public void testInsertsStatements() {
-        /*
-        // Make sure user wants to drop the tables and insert new data.
-        Scanner input = new Scanner(System.in);
-        System.out.println("WARNING: WILL DROP ASSIGNMENT AND COURSE TABLES.");
-        System.out.println("Continue? Y/N");
-        String key = input.next();
-        if (key.charAt(0) != 'Y' && key.charAt(0) == 'y') {
-            System.out.println("Exiting the application. NO TABLES WERE DROPPED AND NO NEW DATA WAS INSERTED SINCE YOU TYPED " + key + ".");
-            System.exit(0);
-        } else {
-            System.out.println("About to drop assignment and course tables...");
-        }
-         */
-
-
         jdbcTemplate.execute("DROP TABLE assignment");
         jdbcTemplate.execute("DROP TABLE course");
 

@@ -28,22 +28,119 @@ public class CourseController {
     JdbcTemplate jdbcTemplate;
 
     // Gets the gen ed element 1 courses that student has taken.
-    public Object[] getGenEdE1Remaining() {
-        List<String> genEdE1Complete = jdbcTemplate.query(
-                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E1"},
-                (rs, rowNum) -> rs.getString(1));
+    public String getGenEdE1Remaining() {
+        List<Double> genEdE1Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E1"},
+                (rs, rowNum) -> rs.getDouble(1));
 
+        double sum = 0;
+        for (int i = 0; i < genEdE1Complete.size(); i++) {
+            sum += genEdE1Complete.get(i);
+        }
+        sum = 9 - sum;
+        if (sum <= 0) {
+            return "Gen Ed 1 satisfied.";
+        } else {
+            return "Gen Ed 1 needs " + sum + " credit hours.";
+        }
 
-        return genEdE1Complete.toArray();
     }
 
     // Gets the gen ed element 2 courses that student has taken.
-    public Object[] getGenEdE2Remaining() throws Exception {
-        List<String> genEdE1Complete = jdbcTemplate.query(
-                "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
-                (rs, rowNum) -> rs.getString(1));
-        return genEdE1Complete.toArray();
+    public String getGenEdE2Remaining() {
+        List<Double> genEdE2Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE2Complete.size(); i++) {
+            sum += genEdE2Complete.get(i);
+        }
+        sum = 3 - sum;
+        if (sum <= 0) {
+            return "Gen Ed 2 satisfied.";
+        } else {
+            return "Gen Ed 2 needs " + sum + " credit hours.";
+        }
+
     }
+
+    // Gets the gen ed element 3 courses that student has taken.
+    public String getGenEdE3Remaining() {
+        List<Double> genEdE3Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E3"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE3Complete.size(); i++) {
+            sum += genEdE3Complete.get(i);
+        }
+        sum = 6 - sum;
+        if (sum <= 0) {
+            return "Gen Ed 3 satisfied.";
+        } else {
+            return "Gen Ed 3 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 4 courses that student has taken.
+    public String getGenEdE4Remaining() {
+        List<Double> genEdE4Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E4"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE4Complete.size(); i++) {
+            sum += genEdE4Complete.get(i);
+        }
+        sum = 6 - sum;
+        if (sum <= 0) {
+            return "Gen Ed 4 satisfied.";
+        } else {
+            return "Gen Ed 4 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 5 courses that student has taken.
+    public String getGenEdE5Remaining() {
+        List<Double> genEdE5Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E5"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE5Complete.size(); i++) {
+            sum += genEdE5Complete.get(i);
+        }
+        sum = 6 - sum;
+        if (sum <= 0) {
+            return "Gen Ed 5 satisfied.";
+        } else {
+            return "Gen Ed 5 needs " + sum + " credit hours.";
+        }
+
+    }
+
+    // Gets the gen ed element 5 courses that student has taken.
+    public String getGenEdE6Remaining() {
+        List<Double> genEdE6Complete = jdbcTemplate.query(
+                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E6"},
+                (rs, rowNum) -> rs.getDouble(1));
+
+        double sum = 0;
+        for (int i = 0; i < genEdE6Complete.size(); i++) {
+            sum += genEdE6Complete.get(i);
+        }
+        sum = 6 - sum;
+        if (sum <= 0) {
+            return "Gen Ed 6 satisfied.";
+        } else {
+            return "Gen Ed 6 needs " + sum + " credit hours.";
+        }
+
+    }
+
 
 
     /*
@@ -71,7 +168,7 @@ public class CourseController {
             *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
      */
 
-
+    // TODO get all courses that have assignment grades
 
     // get all courses that have a final grade
     @GetMapping("")
@@ -82,9 +179,22 @@ public class CourseController {
         return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
     }
 
+    /*
+    // get all courses that have assignment grades
+    // NOTE: status is not actually used by this function - it merely distinguishes it from other @GetMapping APIs.
+    @GetMapping("{status}")
+    public ResponseEntity<Object[]> getCoursesWithAssignments(@PathVariable("status") String status) {
+        System.out.println("here");
+        List<Course> courses = jdbcTemplate.query(
+                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id IN (SELECT course_id FROM assignment)", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
+        );
+        return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
+    }
+    */
+
     // get information for one course
-    @GetMapping("")
-    public ResponseEntity<Object[]> getCourse(@Param("id") String id) {
+    @GetMapping("{id}")
+    public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) {
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -97,14 +207,20 @@ public class CourseController {
     // modify a course
     @PatchMapping()
     public ResponseEntity<Course> modifyCourse(@RequestBody Course course) {
+        // Check that the course exists
+        int courseExists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{course.getId()}, Integer.class);
+        if (courseExists == 0) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
         // Don't allow two courses with same title to be taken in same year and semester.
-        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{course.getId(), course.getTitle(), course.getSemesterTaken(), course.getYearTaken()}, Integer.class);
-        if (courseExistsCount > 0) {
+        int duplicateCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{course.getId(), course.getTitle(), course.getSemesterTaken(), course.getYearTaken()}, Integer.class);
+        if (duplicateCount > 0) {
             return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
         }
 
         // Check that the requirement satisfaction is a valid type.
-        if (!validRequirementSatisfaction(course.getRequirementSatisfaction())){
+        if (!validRequirementSatisfaction(course.getRequirementSatisfaction())) {
             return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
         }
 
@@ -122,7 +238,7 @@ public class CourseController {
         }
 
         // Check that the requirement satisfaction is a valid type.
-        if (!validRequirementSatisfaction(newCourse.getRequirementSatisfaction())){
+        if (!validRequirementSatisfaction(newCourse.getRequirementSatisfaction())) {
             return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
         }
 
@@ -132,7 +248,7 @@ public class CourseController {
         List<Object[]> courseList = new ArrayList<>();
         courseList.add(newCourse.toObjectArray());
         jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", courseList);
-        return new ResponseEntity<>(newCourse, HttpStatus.OK);
+        return new ResponseEntity<>(newCourse, HttpStatus.CREATED);
     }
 
 
@@ -210,6 +326,4 @@ public class CourseController {
         stmt.close();
         conn.close();
     }
-    // TODO add Modify course functionality
-
 }
