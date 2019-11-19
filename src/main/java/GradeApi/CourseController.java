@@ -141,56 +141,28 @@ public class CourseController {
 
     }
 
-
-
-    /*
-    assume all concentrations will be:
-        General
-        Statistical Computing
-        Digital Forensics and Cybersecurity
-        Computer Technology
-        Interactive Multimedia
-        Artificial Intelligence in data Science
-     */
-
-
-    /*
-    Matthew:
-        Remember that course titles are 6 or 7 digits in length.
-        Assume that the digits are stored to the left, i.e.: "CSC190 ", instead of " CSC190" or "CSC 190".
-        Other requirements to check for:
-            Writing intensive course (the only course with a 7-digit title - always ends with a 'W')
-            Upper division coursework (courses ending with digits 300+)
-            ACCT requirement
-            Core
-            Supporting
-            concentration requirements
-            *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
-     */
-
-    // TODO get all courses that have assignment grades
-
-    // get all courses that have a final grade
+    // get all courses of a particular type (according to value of status)
     @GetMapping("")
-    public ResponseEntity<Object[]> getCourses() throws Exception {
-        List<Course> courses = jdbcTemplate.query(
-                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE final_grade IS NOT NULL", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
-        );
-        return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
+    public ResponseEntity<Object[]> getCourses(@Param("status") String status) throws Exception {
+        if (status.equals("")) {
+            List<Course> courses = jdbcTemplate.query(
+                    "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status FROM course", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7), rs.getString(8))
+            );
+            return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
+        } else if (status.equals("finished")) { // Get finished courses.
+            List<Course> courses = jdbcTemplate.query(
+                    "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status FROM course WHERE status = 'finished'", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7), rs.getString(8))
+            );
+            return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
+        } else if (status.equals("in_progress")) { // Get in progress courses.
+            List<Course> courses = jdbcTemplate.query(
+                    "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status FROM course WHERE status = 'in_progress'", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7), rs.getString(8))
+            );
+            return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
+        } else {  // Invalid status!
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
-
-    /*
-    // get all courses that have assignment grades
-    // NOTE: status is not actually used by this function - it merely distinguishes it from other @GetMapping APIs.
-    @GetMapping("{status}")
-    public ResponseEntity<Object[]> getCoursesWithAssignments(@PathVariable("status") String status) {
-        System.out.println("here");
-        List<Course> courses = jdbcTemplate.query(
-                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id IN (SELECT course_id FROM assignment)", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7))
-        );
-        return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
-    }
-    */
 
     // get information for one course
     @GetMapping("{id}")
@@ -200,7 +172,7 @@ public class CourseController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         List<Course> course = jdbcTemplate.query(
-                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade FROM course WHERE id = ?", new Object[]{id}, (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7)));
+                "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status FROM course WHERE id = ?", new Object[]{id}, (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7), rs.getString(8)));
         return new ResponseEntity<>(course.toArray(), HttpStatus.OK);
     }
 
@@ -224,13 +196,23 @@ public class CourseController {
             return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
         }
 
-        jdbcTemplate.update("UPDATE course SET title = ?, requirement_satisfaction = ?, credits = ?, semester_taken = ?, year_taken = ?, final_grade = ? WHERE id = ?", new Object[]{course.getTitle(), course.getRequirementSatisfaction(), course.getCredits(), course.getSemesterTaken(), course.getYearTaken(), course.getFinalGrade(), course.getId()});
+        jdbcTemplate.update("UPDATE course SET title = ?, requirement_satisfaction = ?, credits = ?, semester_taken = ?, year_taken = ?, final_grade = ?, status = ? WHERE id = ?", new Object[]{course.getTitle(), course.getRequirementSatisfaction(), course.getCredits(), course.getSemesterTaken(), course.getYearTaken(), course.getFinalGrade(), course.getStatus(), course.getId()});
         return new ResponseEntity<>(course, HttpStatus.OK);
     }
 
     // Add course
     @PostMapping("")
     public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) {
+        // TODO Make sure the course title is valid.
+        // To be a valid title, it must be of the form: "XXX123 " or "XXX123W".
+        // 1. Remove spacing except at end of course title.
+        // 2. Check that it only contains letters in first three digits.
+        // 3. Check that digits 4 through 6 are numbers.
+        // 4. Check that last digit is either a space or a W.
+        // 5. If there isn't already a space at the end of a 6-character long title, then add it.
+
+        // TODO  check valid status.
+
         // Don't allow two courses with same title to be taken in same year and semester.
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getId(), newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
         if (courseExistsCount > 0) {
@@ -247,7 +229,7 @@ public class CourseController {
         System.out.println(newCourse.getSemesterTaken());
         List<Object[]> courseList = new ArrayList<>();
         courseList.add(newCourse.toObjectArray());
-        jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", courseList);
+        jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?,?)", courseList);
         return new ResponseEntity<>(newCourse, HttpStatus.CREATED);
     }
 
@@ -321,6 +303,7 @@ public class CourseController {
                 "\tsemester_taken CHAR(12) NOT NULL,\n" +
                 "\tyear_taken INT(4) NOT NULL,\n" +
                 "\tfinal_grade CHAR(1),\n" +
+                "\tstatus CHAR(12),\n" +
                 "\tUNIQUE (title, semester_taken, year_taken)\n" +
                 ")");
         stmt.close();

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.util.*;
 
 @SpringBootApplication
@@ -124,6 +125,12 @@ public class AssignmentController {
         jdbcTemplate.execute("DROP TABLE course");
 
         try {
+            new CourseController().createCourseTable();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        try {
             createAssignmentTable();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -132,8 +139,8 @@ public class AssignmentController {
         // Attempt to insert some data into the tables.
         List<Object[]> c = new ArrayList<>();
 
-        Course c1 = new Course(1, "CSC541", "Supporting", 3, "SPRING", 2019, "A");
-        Course c2 = new Course(2, "CSC340", "Supporting", 3, "FALL", 2018, "A");
+        Course c1 = new Course(1, "CSC541", "Supporting", 3, "SPRING", 2019, "A", "finished");
+        Course c2 = new Course(2, "CSC340", "Supporting", 3, "FALL", 2018, "A", "in_progress");
 
         c.add(c1.toObjectArray());
         c.add(c2.toObjectArray());
@@ -149,15 +156,15 @@ public class AssignmentController {
         a.add(a3.toObjectArray());
         a.add(a4.toObjectArray());
 
-        jdbcTemplate.batchUpdate("INSERT INTO course(title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?)", c);
+        jdbcTemplate.batchUpdate("INSERT INTO course(id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?,?)", c);
         System.out.println("Querying for course:");
         jdbcTemplate.query(
                 "SELECT id, title FROM course",
-                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), "blah", 0, "FALL", 2000, "F")
+                (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), "blah", 0, "FALL", 2000, "F", "finished")
         ).forEach(course -> System.out.println(course.getId() + "..." + course.getTitle()));
         //jdbcTemplate.batchUpdate("INSERT INTO course(id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade) VALUES (?,?,?,?,?,?,?)", c2.toString());
 
-        jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", a);
+        jdbcTemplate.batchUpdate("INSERT INTO assignment(id, title, weight, grade, course_id) VALUES (?,?,?,?,?)", a);
 
         System.out.println("Querying for assignments:");
         jdbcTemplate.query(
