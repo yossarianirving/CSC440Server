@@ -186,45 +186,33 @@ public class RequirementsController {
         List<String> coreComplete = jdbcTemplate.query(
                 "SELECT title FROM course WHERE requirement_satisfaction = ?", new Object[]{"CSC%"},
                 (rs, rowNum) -> rs.getString(1));
-        String[] coreStatus = new String[6];
+        String[] coreNeeded = new String[6];
 
-        if( coreComplete.contains("CSC185 ") ){
-            coreStatus[0] = "Credit for CSC185 is satisfied.";
-        } else {
-            coreStatus[0] = "3 hours still needed for CSC185.";
+        if( !coreComplete.contains("CSC185 ") ){
+            coreNeeded[0] = "CSC185";
         }
 
-        if( coreComplete.contains("CSC190 ") ){
-            coreStatus[1] = "Credit for CSC190 is satisfied.";
-        } else {
-            coreStatus[1] = "3 hours still needed for CSC190.";
+        if( !coreComplete.contains("CSC190 ") ){
+            coreNeeded[1] = "CSC190";
         }
 
-        if( coreComplete.contains("CSC191 ") ){
-            coreStatus[2] = "Credit for CSC191 is satisfied.";
-        } else {
-            coreStatus[2] = "3 hours still needed for CSC191.";
+        if( !coreComplete.contains("CSC191 ") ){
+            coreNeeded[2] = "CSC191";
         }
 
-        if( coreComplete.contains("CSC195 ") ){
-            coreStatus[3] = "Credit for CSC195 is satisfied.";
-        } else {
-            coreStatus[3] = "3 hours still needed for CSC195.";
+        if( !coreComplete.contains("CSC195 ") ){
+            coreNeeded[3] = "CSC195";
         }
 
-        if( coreComplete.contains("CSC310 ") ){
-            coreStatus[4] = "Credit for CSC310 is satisfied.";
-        } else {
-            coreStatus[4] = "3 hours still needed for CSC310.";
+        if( !coreComplete.contains("CSC310 ") ){
+            coreNeeded[4] = "CSC310";
         }
 
-        if( coreComplete.contains("CSC340 ") ){
-            coreStatus[5] = "Credit for CSC340 is satisfied.";
-        } else {
-            coreStatus[5] = "3 hours still needed for CSC340.";
+        if( !coreComplete.contains("CSC340 ") ){
+            coreNeeded[5] = "CSC340";
         }
 
-        return coreStatus;
+        return coreNeeded;
     }
 
 
@@ -239,7 +227,7 @@ public class RequirementsController {
 
     // Checks if upper division hours have been met
     public String[] getSupportingRemaining() {
-        String[] supportingStatus = new String[10];
+        String[] supportingNeeded = new String[11];
 
         // Code to get concentration
         String concentration = "General";
@@ -251,34 +239,24 @@ public class RequirementsController {
         if ( concentration.equals("General") ){
 
             // Checks each course to make sure that they have completed General concentration
-            if( supportingComplete.contains("EET252 ") ){
-                supportingStatus[0] = "Credit for EET252 is satisfied.";
-            } else {
-                supportingStatus[0] = "3 hours still needed for EET252.";
+            if( !supportingComplete.contains("EET252 ") ){
+                supportingNeeded[0] = "EET252";
             }
 
-            if( supportingComplete.contains("MAT234 ") ){
-                supportingStatus[1] = "Credit for MAT234 is satisfied.";
-            } else {
-                supportingStatus[1] = "4 hours still needed for MAT234.";
+            if( !supportingComplete.contains("MAT234 ") ){
+                supportingNeeded[1] = "MAT234";
             }
 
-            if( supportingComplete.contains("MAT239 ") ){
-                supportingStatus[2] = "Credit for MAT239 is satisfied.";
-            } else {
-                supportingStatus[2] = "3 hours still needed for MAT239.";
+            if( !supportingComplete.contains("MAT239 ") ){
+                supportingNeeded[2] = "MAT239";
             }
 
-            if( supportingComplete.contains("MAT244 ") ){
-                supportingStatus[3] = "Credit for MAT244 is satisfied.";
-            } else {
-                supportingStatus[3] = "4 hours still needed for MAT244.";
+            if( !supportingComplete.contains("MAT244 ") ){
+                supportingNeeded[3] = "MAT244";
             }
 
-            if( supportingComplete.contains("STA270 ") ){
-                supportingStatus[4] = "Credit for STA270 is satisfied.";
-            } else {
-                supportingStatus[4] = "3 hours still needed for STA270.";
+            if( !supportingComplete.contains("STA270 ") ){
+                supportingNeeded[4] = "STA270";
             }
 
             if(     (supportingComplete.contains("BIO111 ") && supportingComplete.contains("BIO112 ")) ||
@@ -287,8 +265,6 @@ public class RequirementsController {
                     (supportingComplete.contains("GLY108 ") && supportingComplete.contains("GLY109 ")) ||
                     (supportingComplete.contains("PHY201 ") && supportingComplete.contains("PHY202 "))
             ){
-
-                supportingStatus[5] = "Credit for Physical Science sequence is satisfied.";
                 if( supportingComplete.contains("BIO111 ") && supportingComplete.contains("BIO112 ") ){
                     supportingComplete.remove("BIO111 ");
                     supportingComplete.remove("BIO112 ");
@@ -309,7 +285,7 @@ public class RequirementsController {
                     supportingComplete.remove("PHY202 ");
                 }
             } else {
-                supportingStatus[5] = "Credit for a Physical Science sequence needed.";
+                supportingNeeded[5] = "Credit for a Physical Science sequence needed.";
             }
 
             boolean extraPhyscialScience = false;
@@ -341,133 +317,264 @@ public class RequirementsController {
                 extraPhyscialScience = true;
             }
 
-            if ( extraPhyscialScience ){
-                supportingStatus[6] = "Credit for additional Physical Science is satisfied.";
-            } else {
-                supportingStatus[6] = "Still need courses for additional Physical Science.";
+            if ( !extraPhyscialScience ){
+                supportingNeeded[6] = "BIO111, BIO112, CHE111 and CHE111L, CHE112 and CHE112L, GLY108, GLY109, PHY201, PHY202";
             }
 
 
         } else if ( concentration.equals("Digital Forensics and Cybersecurity") ){
 
             // Checks each course to make sure that they have completed Digital Forensics and Cybersecurity concentration
-            if( supportingComplete.contains("CMS210 ") ){
-                supportingStatus[0] = "Credit for CMS210 is satisfied.";
-            } else {
-                supportingStatus[0] = "3 hours still needed for CMS210.";
+            if( !supportingComplete.contains("CMS210 ") ){
+                supportingNeeded[0] = "CMS210";
             }
 
-            if( supportingComplete.contains("FOR301 ") ){
-                supportingStatus[1] = "Credit for FOR301 is satisfied.";
-            } else {
-                supportingStatus[1] = "3 hours still needed for FOR301.";
+            if( !supportingComplete.contains("FOR301 ") ){
+                supportingNeeded[1] = "FOR301";
             }
 
-            if( supportingComplete.contains("FOR401 ") ){
-                supportingStatus[2] = "Credit for FOR401 is satisfied.";
-            } else {
-                supportingStatus[2] = "3 hours still needed for FOR401.";
+            if( !supportingComplete.contains("FOR401 ") ){
+                supportingNeeded[2] = "FOR401";
             }
 
-            if( supportingComplete.contains("FOR465 ") ){
-                supportingStatus[3] = "Credit for FOR465 is satisfied.";
-            } else {
-                supportingStatus[3] = "3 hours still needed for FOR465.";
+            if( !supportingComplete.contains("FOR465 ") ){
+                supportingNeeded[3] = "FOR465";
             }
 
-            if( supportingComplete.contains("MAT234 ") ){
-                supportingStatus[4] = "Credit for MAT234 is satisfied.";
-            } else {
-                supportingStatus[4] = "4 hours still needed for MAT234.";
+            if( !supportingComplete.contains("MAT234 ") ){
+                supportingNeeded[4] = "MAT234";
             }
 
-            if( supportingComplete.contains("STA270 ") ){
-                supportingStatus[5] = "Credit for STA270 is satisfied.";
-            } else {
-                supportingStatus[5] = "4 hours still needed for STA270.";
+            if( !supportingComplete.contains("STA270 ") ){
+                supportingNeeded[5] = "STA270";
             }
 
             // Checks if they have completed their physical science requirement
             int physcialScienceCount = 0;
+            String physcialScienceNotCompleted = "";
             if( supportingComplete.contains("BIO111 ") ){
                 physcialScienceCount++;
+            } else {
+                physcialScienceNotCompleted += "BIO111, ";
             }
             if( supportingComplete.contains("CHE111 ") || supportingComplete.contains("CHE111L") ){
                 physcialScienceCount++;
+            } else {
+                physcialScienceNotCompleted += "CHE111, CHE111L, ";
             }
             if( supportingComplete.contains("PHY201 ") ){
                 physcialScienceCount++;
-            }
-            if( physcialScienceCount >= 2 ){
-                supportingStatus[6] = "Credit for physical science is satisfied.";
             } else {
-                supportingStatus[6] = "Still need 2 courses in BIO111 or CHE111 and CHE111L or PHY201.";
+                physcialScienceNotCompleted += "PHY201, ";
+            }
+            if( physcialScienceCount < 2 ){
+                supportingNeeded[6] = physcialScienceNotCompleted.substring(0, physcialScienceNotCompleted.length()-2);
             }
 
             // Checks if they have completed their restricted elective A requirement
             int reA = 0;
+            String reANotCompleted = "";
             if( supportingComplete.contains("CRJ101 ") ){
                 reA++;
+            } else {
+                reANotCompleted += "CRJ101, ";
             }
             if( supportingComplete.contains("PLS216 ") ){
                 reA++;
-            }
-            if( supportingComplete.contains("PLS316 ") ){
-                reA++;
-            }
-            if( supportingComplete.contains("PLS316 ") ){
-                reA++;
-            }
-            if( reA >= 2 ){
-                supportingStatus[7] = "Credit for Restricted Elective A is satisfied.";
             } else {
-                supportingStatus[7] = "Still need 2 courses in CRJ101 or PLS216 or PLS316 or PLS316.";
+                reANotCompleted += "PLS216, ";
+            }
+            if( supportingComplete.contains("PLS316 ") ){
+                reA++;
+            } else {
+                reANotCompleted += "PLS316, ";
+            }
+            if( supportingComplete.contains("PLS316 ") ){
+                reA++;
+            } else {
+                reANotCompleted += "PLS316, ";
+            }
+            if( reA < 2 ){
+                supportingNeeded[7] = reANotCompleted.substring(0, reANotCompleted.length()-2);
             }
 
             // Checks if they have completed their restricted elective B requirement
             int reB = 0;
+            String reBNotCompleted = "";
             if( supportingComplete.contains("CIS320 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "CIS320, ";
             }
             if( supportingComplete.contains("CIS325 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "CIS325, ";
             }
             if( supportingComplete.contains("HLS400 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "HLS400, ";
             }
             if( supportingComplete.contains("HLS401 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "HLS401, ";
             }
             if( supportingComplete.contains("HLS402 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "HLS402, ";
             }
             if( supportingComplete.contains("HLS403 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "HLS403, ";
             }
             if( supportingComplete.contains("NET303 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "NET303, ";
             }
             if( supportingComplete.contains("NET354 ") ){
                 reB++;
+            } else {
+                reBNotCompleted += "NET354, ";
             }
             if( supportingComplete.contains("NET454 ") ){
                 reB++;
-            }
-            if( reB >= 2 ){
-                supportingStatus[8] = "Credit for Restricted Elective B is satisfied.";
             } else {
-                supportingStatus[8] = "Still need 2 courses in CIS320 or CIS325 or HLS400 or HLS401 or HLS402 or HLS403 or NET303 or NET354 or NET454.";
+                reBNotCompleted += "NET454, ";
+            }
+            if( reB < 2 ){
+                supportingNeeded[8] = reBNotCompleted.substring(0, reBNotCompleted.length()-2);
             }
 
         } else if ( concentration.equals("Computer Technology")){
 
+            // Checks each course to make sure that they have completed Computer Technology concentration
+            if( !supportingComplete.contains("EET252 ") ){
+                supportingNeeded[0] = "EET252";
+            }
+            if( !supportingComplete.contains("NET302 ") ){
+                supportingNeeded[1] = "NET302";
+            }
+            if( !supportingComplete.contains("NET303 ") ){
+                supportingNeeded[2] = "NET303";
+            }
+            if( !supportingComplete.contains("NET343 ") ){
+                supportingNeeded[3] = "NET343";
+            }
+            if( !supportingComplete.contains("NET344 ") && !supportingComplete.contains("NET395 ") ){
+                supportingNeeded[4] = "NET344, NET395";
+            }
+            if( !supportingComplete.contains("NET354 ") ){
+                supportingNeeded[5] = "NET354";
+            }
+            if( !supportingComplete.contains("NET403 ") ){
+                supportingNeeded[6] = "NET403";
+            }
+            if( !supportingComplete.contains("NET454 ") ){
+                supportingNeeded[7] = "NET454";
+            }
+            if( !supportingComplete.contains("MAT234 ") && !supportingComplete.contains("MAT211 ") ){
+                supportingNeeded[8] = "MAT234, MAT211";
+            }
+
+
         } else if ( concentration.equals("Interactive Multimedia")){
+
+            // Checks each course to make sure that they have completed Computer Technology concentration
+            if( !supportingComplete.contains("BEM200 ") ){
+                supportingNeeded[0] = "BEM200";
+            }
+            if( !supportingComplete.contains("EET252 ") ){
+                supportingNeeded[1] = "EET252";
+            }
+            if( !supportingComplete.contains("MAT234 ") ){
+                supportingNeeded[2] = "MAT234";
+            }
+            if( !supportingComplete.contains("MAT239 ") ){
+                supportingNeeded[3] = "MAT239";
+            }
+            if( !supportingComplete.contains("MAT244 ") ){
+                supportingNeeded[4] = "MAT244";
+            }
+            if( !supportingComplete.contains("MUS290 ") ){
+                supportingNeeded[5] = "MUS290";
+            }
+            if( !supportingComplete.contains("PHY201 ") ){
+                supportingNeeded[6] = "PHY201";
+            }
+            if( !supportingComplete.contains("STA270 ") ){
+                supportingNeeded[7] = "STA270";
+            }
+
+            if( !supportingComplete.contains("ART200 ") && !( supportingComplete.contains("ARH390 ") || supportingComplete.contains("ARH391 ") ) ){
+                supportingNeeded[8] = "ART200 and ARH390 or ARH391";
+            }
+
+            if( !( supportingComplete.contains("ART100 ") ||  supportingComplete.contains("TEC190 ") || supportingComplete.contains("GCM313 ") ) ){
+                supportingNeeded[9] = "ART100, TEC190, GCM313";
+            }
+
+            if( !( supportingComplete.contains("GEO353 ") && supportingComplete.contains("GEO453 ") ) ||
+                    !( supportingComplete.contains("MKT301 ") && supportingComplete.contains("MKT310 ") ) ||
+                    !( supportingComplete.contains("MGT301 ") && supportingComplete.contains("MGT465 ") )
+            ){
+                supportingNeeded[10] = "GEO353 and GEO453, MKT301 and MKT310, MGT301 and MGT465";
+            }
 
         } else if ( concentration.equals("Artificial Intelligence in data Science")){
 
-        }
+            // Checks each course to make sure that they have completed Artificial Intelligence in data Science concentration
+            if( !supportingComplete.contains("MAT234 ") ){
+                supportingNeeded[0] = "MAT234";
+            }
+            if( !supportingComplete.contains("MAT244 ") ){
+                supportingNeeded[1] = "MAT244";
+            }
+            if( !supportingComplete.contains("STA270 ") ){
+                supportingNeeded[2] = "STA270";
+            }
+            if( !supportingComplete.contains("STA340 ") ){
+                supportingNeeded[3] = "STA340";
+            }
+            if( !supportingComplete.contains("STA375 ") ){
+                supportingNeeded[4] = "STA375";
+            }
+            if( !supportingComplete.contains("STA380 ") ){
+                supportingNeeded[5] = "STA380";
+            }
+            if( !supportingComplete.contains("STA575 ") ){
+                supportingNeeded[6] = "STA575";
+            }
+            if( !supportingComplete.contains("STA580 ") ){
+                supportingNeeded[7] = "STA580";
+            }
+            if( !supportingComplete.contains("STA585 ") ){
+                supportingNeeded[8] = "STA585";
+            }
 
-        return supportingStatus;
+            if( !(  (supportingComplete.contains("AEM202 ") &&
+                            (supportingComplete.contains("AEM332 ") || supportingComplete.contains("AEM336 ") || supportingComplete.contains("AEM506 "))) ||
+                    (supportingComplete.contains("BIO315 ") && supportingComplete.contains("BIO553 ")) ||
+                    (supportingComplete.contains("ECO230 ") && supportingComplete.contains("ECO231 ")) ||
+                    (supportingComplete.contains("ECO320 ") && supportingComplete.contains("ECO420 ")) ||
+                    (supportingComplete.contains("RMI370 ") &&
+                            (supportingComplete.contains("RMI372 ") || supportingComplete.contains("RMI374 ") || supportingComplete.contains("INS378 "))) ||
+                    (supportingComplete.contains("STA520 ") && supportingComplete.contains("STA521 ")) ||
+                    (supportingComplete.contains("CSC332 ") &&
+                            (supportingComplete.contains("CSC542 ") || supportingComplete.contains("CSC547 ") || supportingComplete.contains("CSC548 "))) ||
+                    (supportingComplete.contains("GEO353 ") && supportingComplete.contains("GEO453 ")) ||
+                    (supportingComplete.contains("HLS401 ") || supportingComplete.contains("HLS402 ")) ||
+                    (supportingComplete.contains("HLS401 ") || supportingComplete.contains("HLS403 ")) ||
+                    (supportingComplete.contains("HLS402 ") || supportingComplete.contains("HLS403 "))
+            ) ){
+                supportingNeeded[0] = "AEM202 and (AEM332 or AEM336 or AEM506), or BIO315 and BIO533, or ECO230 and ECO231, or RMI370 and (RMI372 or RMI374 or INS378), or STA520 and STA521, or CSC332 and (CSC542 or CSC547 or CSC548), or GEO353 and GEO453, or 2 from (HLS401, HLS402, or HLS403)";
+            }
+        }
+        return supportingNeeded;
     }
 
 }
