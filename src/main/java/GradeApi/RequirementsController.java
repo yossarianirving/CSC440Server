@@ -190,7 +190,7 @@ public class RequirementsController {
 
         String[] coreNeeded = new String[18];
 
-        if ( concentration.equals("General") ){
+        if ( concentration.equals("General") || concentration.equals("Computer Technology") || concentration.equals("Interactive Multimedia") || concentration.equals("Artificial Intelligence in data Science") ){
             if( !coreComplete.contains("CSC185 ") ){
                 coreNeeded[0] = "CSC185";
             }
@@ -234,75 +234,73 @@ public class RequirementsController {
             }
 
             if( !coreComplete.contains("CSC210 ") ){
-                coreNeeded[1] = "CSC185";
+                coreNeeded[1] = "CSC210";
             }
 
             if( !coreComplete.contains("CSC308 ") && !coreComplete.contains("CSC309 ") ){
-                coreNeeded[2] = "CSC185";
+                coreNeeded[2] = "CSC308, CSC309";
             }
 
             if( !coreComplete.contains("CSC313 ") ){
-                coreNeeded[3] = "CSC185";
+                coreNeeded[3] = "CSC313";
             }
 
             if( !coreComplete.contains("CSC332 ") ){
-                coreNeeded[4] = "CSC185";
+                coreNeeded[4] = "CSC332";
             }
 
             if( !coreComplete.contains("CSC360 ") ){
-                coreNeeded[5] = "CSC185";
+                coreNeeded[5] = "CSC360";
             }
 
             if( !coreComplete.contains("CSC400 ") ){
-                coreNeeded[6] = "CSC185";
+                coreNeeded[6] = "CSC400";
             }
 
             if( !coreComplete.contains("CSC410 ") ){
-                coreNeeded[7] = "CSC185";
+                coreNeeded[7] = "CSC410";
             }
 
             if( !coreComplete.contains("CSC536 ") ){
-                coreNeeded[8] = "CSC185";
+                coreNeeded[8] = "CSC536";
             }
 
             if( !coreComplete.contains("CSC537 ") ){
-                coreNeeded[9] = "CSC185";
+                coreNeeded[9] = "CSC537";
             }
 
             if( !coreComplete.contains("CSC547 ") ){
-                coreNeeded[10] = "CSC185";
+                coreNeeded[10] = "CSC547";
             }
 
             if( !coreComplete.contains("CSC548 ") ){
-                coreNeeded[11] = "CSC185";
+                coreNeeded[11] = "CSC548";
             }
 
             if( !coreComplete.contains("CSC549 ") ){
-                coreNeeded[12] = "CSC185";
+                coreNeeded[12] = "CSC549";
             }
 
             if( !coreComplete.contains("INF318 ") ){
-                coreNeeded[13] = "CSC185";
+                coreNeeded[13] = "INF318";
             }
 
             if( !coreComplete.contains("INF321 ") ){
-                coreNeeded[14] = "CSC185";
+                coreNeeded[14] = "INF321";
             }
 
             if( !coreComplete.contains("INF322 ") ){
-                coreNeeded[15] = "CSC185";
+                coreNeeded[15] = "INF322";
             }
 
             if( !coreComplete.contains("CSC349 ") && !coreComplete.contains("INF495 ") ){
-                coreNeeded[16] = "CSC185";
+                coreNeeded[16] = "CSC349, INF495";
             }
 
             if( !coreComplete.contains("CSC520 ") && !coreComplete.contains("CSC539 ") && !coreComplete.contains("CSC542 ") && !coreComplete.contains("CSC543 ") && !coreComplete.contains("CSC544 ")  ){
-                coreNeeded[17] = "CSC185";
+                coreNeeded[17] = "CSC520, CSC539, CSC542, CSC543, CSC544";
             }
 
-        } else if ( concentration.equals("Computer Technology")){
-            
         }
 
         return coreNeeded;
@@ -318,12 +316,12 @@ public class RequirementsController {
         Artificial Intelligence in data Science
      */
 
-    // Checks if upper division hours have been met
+    // Checks if supporting courses have been met
     public String[] getSupportingRemaining(String concentration) {
         String[] supportingNeeded = new String[11];
 
         List<String> supportingComplete = jdbcTemplate.query(
-                "SELECT title FROM course WHERE title = ?", new Object[]{"CSC%"},
+                "SELECT title FROM course",
                 (rs, rowNum) -> rs.getString(1));
 
         if ( concentration.equals("General") ){
@@ -667,11 +665,32 @@ public class RequirementsController {
         return supportingNeeded;
     }
 
+    // Checks if concentration requirements are done
+    public String[] getConcentrationRemaining(String concentration) {
+        String[] concentrationNeeded = new String[11];
+
+        List<String> supportingComplete = jdbcTemplate.query(
+                "SELECT title FROM course WHERE title = ?", new Object[]{"CSC%"},
+                (rs, rowNum) -> rs.getString(1));
+
+        if ( concentration.equals("General") ){
+
+            if ( supp)
+
+        } else if ( concentration.equals("Digital Forensics and Cybersecurity") ){
+
+        } else if ( concentration.equals("Computer Technology") ){
+
+        } else if ( concentration.equals("Interactive Multimedia") ){
+
+        } else if ( concentration.equals("Artificial Intelligence in data Science") ){
+
+        }
+
+        return concentrationNeeded;
+    }
+
 }
-
-
-
-
 
     /*
     Matthew:
@@ -681,7 +700,7 @@ public class RequirementsController {
                         Writing intensive course (the only course with a 7-digit title - always ends with a 'W')
                         Upper division coursework (courses ending with digits 300+)
                         ACCT requirement
-            Core
+                        Core
                         Supporting
             concentration requirements
             *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
