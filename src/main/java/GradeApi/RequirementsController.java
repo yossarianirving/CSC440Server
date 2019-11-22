@@ -181,6 +181,15 @@ public class RequirementsController {
 
     }
 
+    /*
+    assume all concentrations will be:
+        General
+        Digital Forensics and Cybersecurity
+        Computer Technology
+        Interactive Multimedia
+        Artificial Intelligence in data Science
+     */
+
     // Checks if core courses have been completed
     public String[] getCoreRemaining(String concentration) {
         List<String> coreComplete = jdbcTemplate.query(
@@ -305,16 +314,6 @@ public class RequirementsController {
 
         return coreNeeded;
     }
-
-
-    /*
-    assume all concentrations will be:
-        General
-        Digital Forensics and Cybersecurity
-        Computer Technology
-        Interactive Multimedia
-        Artificial Intelligence in data Science
-     */
 
     // Checks if supporting courses have been met
     public String[] getSupportingRemaining(String concentration) {
@@ -667,23 +666,171 @@ public class RequirementsController {
 
     // Checks if concentration requirements are done
     public String[] getConcentrationRemaining(String concentration) {
-        String[] concentrationNeeded = new String[11];
+        String[] concentrationNeeded = new String[9];
 
-        List<String> supportingComplete = jdbcTemplate.query(
+        List<String> concentrationComplete = jdbcTemplate.query(
                 "SELECT title FROM course WHERE title = ?", new Object[]{"CSC%"},
                 (rs, rowNum) -> rs.getString(1));
 
         if ( concentration.equals("General") ){
 
-            if ( supp)
+            if ( !concentrationComplete.contains("CSC311 ") ){
+                concentrationNeeded[0] = "CSC311";
+            }
 
-        } else if ( concentration.equals("Digital Forensics and Cybersecurity") ){
+            if ( !concentrationComplete.contains("CSC320 ") ){
+                concentrationNeeded[1] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC360 ") ){
+                concentrationNeeded[2] = "CSC360";
+            }
+
+            if ( !concentrationComplete.contains("CSC400 ") ){
+                concentrationNeeded[3] = "CSC400";
+            }
+
+            if ( !concentrationComplete.contains("CSC440 ") ){
+                concentrationNeeded[4] = "CSC440";
+            }
+
+            if ( !concentrationComplete.contains("CSC460 ") ){
+                concentrationNeeded[5] = "CSC460";
+            }
+
+            if ( !concentrationComplete.contains("CSC541 ") ){
+                concentrationNeeded[6] = "CSC541";
+            }
+
+            if ( !concentrationComplete.contains("CSC545 ") ){
+                concentrationNeeded[7] = "CSC545";
+            }
+
+            if ( !concentrationComplete.contains("CSC494 ") && !concentrationComplete.contains("CSC495 ") && !concentrationComplete.contains("CSC496 ") ){
+                concentrationNeeded[8] = "CSC494, CSC495, CSC496";
+            }
 
         } else if ( concentration.equals("Computer Technology") ){
 
+            if ( !concentrationComplete.contains("CSC360 ") ){
+                concentrationNeeded[0] = "CSC360";
+            }
+
+            if ( !concentrationComplete.contains("CSC440 ") ){
+                concentrationNeeded[1] = "CSC440";
+            }
+
+            if ( !concentrationComplete.contains("CSC460 ") ){
+                concentrationNeeded[2] = "CSC460";
+            }
+
+            if ( !concentrationComplete.contains("CSC545 ") ){
+                concentrationNeeded[3] = "CSC545";
+            }
+
+            if ( !concentrationComplete.contains("CSC349 ") ){
+                concentrationNeeded[4] = "CSC349";
+            }
+
+            if ( !concentrationComplete.contains("CSC330 ") && !concentrationComplete.contains("CSC544 ") ){
+                concentrationNeeded[5] = "CSC330, CSC544";
+            }
+
+            // Need one CSC course about 300 level excluding CSC 349, 490, 494, 495, and 496
+            // Checking from 300 level to 799 level
+            boolean above300Course = false;
+            for (int i = 300; i < 800; i++){
+                if ( !(i == 349 || i == 490 || i == 494 || i == 495 || i == 496)  ){
+                    if ( concentrationComplete.contains("CSC" + i + " ") ){
+                        above300Course = true;
+                        break;
+                    }
+                }
+            }
+
+            if ( !above300Course ) {
+                concentrationNeeded[6] = "CSC300+";
+            }
+
         } else if ( concentration.equals("Interactive Multimedia") ){
 
+            if ( !concentrationComplete.contains("CSC140 ") ){
+                concentrationNeeded[0] = "CSC140";
+            }
+
+            if ( !concentrationComplete.contains("CSC315 ") ){
+                concentrationNeeded[1] = "CSC315";
+            }
+
+            if ( !concentrationComplete.contains("CSC316 ") ){
+                concentrationNeeded[2] = "CSC316";
+            }
+
+            if ( !concentrationComplete.contains("CSC491 ") ){
+                concentrationNeeded[3] = "CSC491";
+            }
+
+            if ( !concentrationComplete.contains("CSC550 ") ){
+                concentrationNeeded[4] = "CSC550";
+            }
+
+            if ( !concentrationComplete.contains("CSC520 ") && !concentrationComplete.contains("CSC555 ") ){
+                concentrationNeeded[5] = "CSC520, CSC555";
+            }
+
+            if ( !concentrationComplete.contains("CSC300 ") && !concentrationComplete.contains("CSC308 ") && !concentrationComplete.contains("CSC309 ") &&
+                    !concentrationComplete.contains("CSC311 ") && !concentrationComplete.contains("CSC320 ") &&
+                    !concentrationComplete.contains("CSC330 ") && !concentrationComplete.contains("CSC332 ") &&
+                    !concentrationComplete.contains("CSC350 ") && !concentrationComplete.contains("CSC360 ") &&
+                    !concentrationComplete.contains("CSC390 ") && !concentrationComplete.contains("CSC400 ") &&
+                    !concentrationComplete.contains("CSC425 ") && !concentrationComplete.contains("CSC440 ") &&
+                    !concentrationComplete.contains("CSC460 ") && !concentrationComplete.contains("CSC490 ") &&
+                    !concentrationComplete.contains("CSC507 ") && !concentrationComplete.contains("CSC538 ") &&
+                    !concentrationComplete.contains("CSC540 ") && !concentrationComplete.contains("CSC541 ") &&
+                    !concentrationComplete.contains("CSC542 ") && !concentrationComplete.contains("CSC544 ") &&
+                    !concentrationComplete.contains("CSC545 ") && !concentrationComplete.contains("CSC546 ") &&
+                    !concentrationComplete.contains("CSC547 ") && !concentrationComplete.contains("CSC548 ")
+            ){
+                concentrationNeeded[6] = "CSC300, CSC308, CSC309, CSC311, CSC320, CSC330, CSC332, CSC 350, CSC360, CSC 390, CSC400, CSC425, CSC 440, CSC460, CSC490, CSC507, CSC538, CSC540, CSC541, CSC542, CSC544, CSC545, CSC546, CSC547, CSC 548";
+            }
+
+            if ( !concentrationComplete.contains("CSC494 ") && !concentrationComplete.contains("CSC495 ") && !concentrationComplete.contains("CSC496 ") ){
+                concentrationNeeded[7] = "CSC494, CSC495, CSC496";
+            }
+
         } else if ( concentration.equals("Artificial Intelligence in data Science") ){
+
+            if ( !concentrationComplete.contains("CSC311 ") ){
+                concentrationNeeded[0] = "CSC311";
+            }
+
+            if ( !concentrationComplete.contains("CSC320 ") ){
+                concentrationNeeded[1] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC545 ") ){
+                concentrationNeeded[2] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC546 ") ){
+                concentrationNeeded[3] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC581 ") ){
+                concentrationNeeded[4] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC582 ") ){
+                concentrationNeeded[5] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC583 ") ){
+                concentrationNeeded[6] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC494 ") && !concentrationComplete.contains("CSC495 ") && !concentrationComplete.contains("CSC496 ") ){
+                concentrationNeeded[7] = "CSC494, CSC495, CSC496";
+            }
 
         }
 
@@ -697,11 +844,11 @@ public class RequirementsController {
         Remember that course titles are 6 or 7 digits in length.
         Assume that the digits are stored to the left, i.e.: "CSC190 ", instead of " CSC190" or "CSC 190".
         Other requirements to check for:
-                        Writing intensive course (the only course with a 7-digit title - always ends with a 'W')
-                        Upper division coursework (courses ending with digits 300+)
-                        ACCT requirement
-                        Core
-                        Supporting
-            concentration requirements
+                        done - Writing intensive course (the only course with a 7-digit title - always ends with a 'W')
+                        done - Upper division coursework (courses ending with digits 300+)
+                        done -  ACCT requirement
+                        done - Core
+                        done - Supporting
+                        done - concentration requirements
             *120-hour requirement? Free electives? (we may not need to consider these - show me what you've got once you finish functions that check progress on other requirements)
      */
