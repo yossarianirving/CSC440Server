@@ -9,6 +9,16 @@ public class Course {
     public int yearTaken;
     public String finalGrade;
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String status;
+
     public int getId() {
         return id;
     }
@@ -65,7 +75,7 @@ public class Course {
         this.finalGrade = finalGrade;
     }
 
-    Course(int id, String title, String requirementSatisfaction, double credits, String semesterTaken, int yearTaken, String finalGrade) {
+    Course(int id, String title, String requirementSatisfaction, double credits, String semesterTaken, int yearTaken, String finalGrade, String status) {
         this.id = id;
         this.title = title;
         this.requirementSatisfaction = requirementSatisfaction;
@@ -73,10 +83,11 @@ public class Course {
         this.semesterTaken = semesterTaken;
         this.yearTaken = yearTaken;
         this.finalGrade = finalGrade;
+        this.status = status;
     }
 
     public Object[] toObjectArray() {
-        return new Object[]{getId(), getTitle(), getRequirementSatisfaction(), getCredits(), getSemesterTaken(), getYearTaken(), getFinalGrade()};
+        return new Object[]{getId(), getTitle(), getRequirementSatisfaction(), getCredits(), getSemesterTaken(), getYearTaken(), getFinalGrade(), getStatus()};
     }
 
     @Override
