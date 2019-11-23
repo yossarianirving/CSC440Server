@@ -1,6 +1,6 @@
 #FileLock
-#Sat Nov 23 09:33:01 EST 2019
-server=localhost\:61530
-hostName=localhost
+#Sat Nov 23 13:58:46 EST 2019
+server=192.168.1.22\:63083
+hostName=192.168.1.22
 method=file
-id=16e98ae23b2d9bda4e4ae3919972dd384549330e3a5
+id=16e99a16c6cca5ebb65e4cc5b4b5fc4dce636612b86
