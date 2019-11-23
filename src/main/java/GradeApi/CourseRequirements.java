@@ -10,13 +10,12 @@ public class CourseRequirements {
     public String genEdE6;
     public String writingIntensive;
     public String acct;
-    public String[] core;
-    public String[] supporting;
-    public String[] concentration;
-    // etc...
+    public String core;
+    public String supporting;
+    public String concentration;
 
     CourseRequirements(String genEdE1, String genEdE2, String genEdE3, String genEdE4, String genEdE5, String genEdE6, String writingIntensive, String upperDivisionHours,
-                       String acct, String[] core, String[] supporting, String[] concentration) {
+                       String acct, String core, String supporting, String concentration) {
         this.genEdE1 = genEdE1;
         this.genEdE2 = genEdE2;
         this.genEdE3 = genEdE3;

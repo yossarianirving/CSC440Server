@@ -30,13 +30,13 @@ public class AssignmentController {
         // Check that the assignment exists.
         int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{newAssignment.getId()}, Integer.class);
         if (count == 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
         }
 
         // Check that the title does not exist for some other assignment.
         int duplicates = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id != ? AND title = ? AND course_id = ?", new Object[]{newAssignment.getId(), newAssignment.getTitle(), newAssignment.getCourseID()}, Integer.class);
         if (duplicates > 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
         }
 
         jdbcTemplate.update("UPDATE assignment SET title = ?, weight = ?, grade = ? WHERE id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getWeight(), newAssignment.getGrade(), newAssignment.getId()});
@@ -60,7 +60,7 @@ public class AssignmentController {
         // Check that the assignment does not already exist.
         int number = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE (title = ? AND course_id = ?) OR id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getCourseID(), newAssignment.getId()}, Integer.class);
         if (number > 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.ALREADY_REPORTED);
+            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_ACCEPTABLE);
         }
 
         // Check that the course exists.

@@ -27,120 +27,6 @@ public class CourseController {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    // Gets the gen ed element 1 courses that student has taken.
-    public String getGenEdE1Remaining() {
-        List<Double> genEdE1Complete = jdbcTemplate.query(
-                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E1"},
-                (rs, rowNum) -> rs.getDouble(1));
-
-        double sum = 0;
-        for (int i = 0; i < genEdE1Complete.size(); i++) {
-            sum += genEdE1Complete.get(i);
-        }
-        sum = 9 - sum;
-        if (sum <= 0) {
-            return "Gen Ed 1 satisfied.";
-        } else {
-            return "Gen Ed 1 needs " + sum + " credit hours.";
-        }
-
-    }
-
-    // Gets the gen ed element 2 courses that student has taken.
-    public String getGenEdE2Remaining() {
-        List<Double> genEdE2Complete = jdbcTemplate.query(
-                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E2"},
-                (rs, rowNum) -> rs.getDouble(1));
-
-        double sum = 0;
-        for (int i = 0; i < genEdE2Complete.size(); i++) {
-            sum += genEdE2Complete.get(i);
-        }
-        sum = 3 - sum;
-        if (sum <= 0) {
-            return "Gen Ed 2 satisfied.";
-        } else {
-            return "Gen Ed 2 needs " + sum + " credit hours.";
-        }
-
-    }
-
-    // Gets the gen ed element 3 courses that student has taken.
-    public String getGenEdE3Remaining() {
-        List<Double> genEdE3Complete = jdbcTemplate.query(
-                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E3"},
-                (rs, rowNum) -> rs.getDouble(1));
-
-        double sum = 0;
-        for (int i = 0; i < genEdE3Complete.size(); i++) {
-            sum += genEdE3Complete.get(i);
-        }
-        sum = 6 - sum;
-        if (sum <= 0) {
-            return "Gen Ed 3 satisfied.";
-        } else {
-            return "Gen Ed 3 needs " + sum + " credit hours.";
-        }
-
-    }
-
-    // Gets the gen ed element 4 courses that student has taken.
-    public String getGenEdE4Remaining() {
-        List<Double> genEdE4Complete = jdbcTemplate.query(
-                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E4"},
-                (rs, rowNum) -> rs.getDouble(1));
-
-        double sum = 0;
-        for (int i = 0; i < genEdE4Complete.size(); i++) {
-            sum += genEdE4Complete.get(i);
-        }
-        sum = 6 - sum;
-        if (sum <= 0) {
-            return "Gen Ed 4 satisfied.";
-        } else {
-            return "Gen Ed 4 needs " + sum + " credit hours.";
-        }
-
-    }
-
-    // Gets the gen ed element 5 courses that student has taken.
-    public String getGenEdE5Remaining() {
-        List<Double> genEdE5Complete = jdbcTemplate.query(
-                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E5"},
-                (rs, rowNum) -> rs.getDouble(1));
-
-        double sum = 0;
-        for (int i = 0; i < genEdE5Complete.size(); i++) {
-            sum += genEdE5Complete.get(i);
-        }
-        sum = 6 - sum;
-        if (sum <= 0) {
-            return "Gen Ed 5 satisfied.";
-        } else {
-            return "Gen Ed 5 needs " + sum + " credit hours.";
-        }
-
-    }
-
-    // Gets the gen ed element 5 courses that student has taken.
-    public String getGenEdE6Remaining() {
-        List<Double> genEdE6Complete = jdbcTemplate.query(
-                "SELECT credits FROM course WHERE requirement_satisfaction = ?", new Object[]{"Gen Ed E6"},
-                (rs, rowNum) -> rs.getDouble(1));
-
-        double sum = 0;
-        for (int i = 0; i < genEdE6Complete.size(); i++) {
-            sum += genEdE6Complete.get(i);
-        }
-        sum = 6 - sum;
-        if (sum <= 0) {
-            return "Gen Ed 6 satisfied.";
-        } else {
-            return "Gen Ed 6 needs " + sum + " credit hours.";
-        }
-
-    }
-
     // get all courses of a particular type (according to value of status)
     @GetMapping("")
     public ResponseEntity<Object[]> getCourses(@Param("status") String status) throws Exception {
@@ -160,7 +46,7 @@ public class CourseController {
             );
             return new ResponseEntity<>(courses.toArray(), HttpStatus.OK);
         } else {  // Invalid status!
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
@@ -179,6 +65,12 @@ public class CourseController {
     // modify a course
     @PatchMapping()
     public ResponseEntity<Course> modifyCourse(@RequestBody Course course) {
+        // Assume that the course ID was NOT changed (only other information on the course was changed).
+
+        // Capitalize the semester and title.
+        course.setSemesterTaken(course.getSemesterTaken().toUpperCase());
+        course.setTitle(course.getTitle().toUpperCase());
+
         // Check that the course exists
         int courseExists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{course.getId()}, Integer.class);
         if (courseExists == 0) {
@@ -188,12 +80,19 @@ public class CourseController {
         // Don't allow two courses with same title to be taken in same year and semester.
         int duplicateCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{course.getId(), course.getTitle(), course.getSemesterTaken(), course.getYearTaken()}, Integer.class);
         if (duplicateCount > 0) {
-            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        // Try making the course title valid.
+        try {
+            course.setTitle(fixCourseTitle(course.getTitle()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
         // Check that the requirement satisfaction is a valid type.
         if (!validRequirementSatisfaction(course.getRequirementSatisfaction())) {
-            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
         jdbcTemplate.update("UPDATE course SET title = ?, requirement_satisfaction = ?, credits = ?, semester_taken = ?, year_taken = ?, final_grade = ?, status = ? WHERE id = ?", new Object[]{course.getTitle(), course.getRequirementSatisfaction(), course.getCredits(), course.getSemesterTaken(), course.getYearTaken(), course.getFinalGrade(), course.getStatus(), course.getId()});
@@ -203,30 +102,28 @@ public class CourseController {
     // Add course
     @PostMapping("")
     public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) {
-        // TODO Make sure the course title is valid.
-        // To be a valid title, it must be of the form: "XXX123 " or "XXX123W".
-        // 1. Remove spacing except at end of course title.
-        // 2. Check that it only contains letters in first three digits.
-        // 3. Check that digits 4 through 6 are numbers.
-        // 4. Check that last digit is either a space or a W.
-        // 5. If there isn't already a space at the end of a 6-character long title, then add it.
-
-        // TODO  check valid status.
+        // Try making the course title valid.
+        try {
+            newCourse.setTitle(fixCourseTitle(newCourse.getTitle()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
 
         // Don't allow two courses with same title to be taken in same year and semester.
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getId(), newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
         if (courseExistsCount > 0) {
-            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
         // Check that the requirement satisfaction is a valid type.
         if (!validRequirementSatisfaction(newCourse.getRequirementSatisfaction())) {
-            return new ResponseEntity<>(null, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        // Turn the course instance into an array.
+        // Capitalize the semester and course title.
         newCourse.setSemesterTaken(newCourse.getSemesterTaken().toUpperCase());  // Make all semesters uppercase.
-        System.out.println(newCourse.getSemesterTaken());
+        newCourse.setTitle(newCourse.getTitle().toUpperCase());
+
         List<Object[]> courseList = new ArrayList<>();
         courseList.add(newCourse.toObjectArray());
         jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?,?)", courseList);
@@ -245,6 +142,33 @@ public class CourseController {
         jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{course.getId()});
         return new ResponseEntity<>(course, HttpStatus.OK);
     }
+
+    // Returns a corrected course title corrected to the system standards.
+    // Ex: "csc 190" becomes "CSC190 ".
+    private String fixCourseTitle(String courseTitle) throws Exception {
+        // To be a valid title, it must be 6 or 7 chars long and be of the form: "XXX123 " or "XXX123W".
+        if (courseTitle.length() > 7 || courseTitle.length() < 6) {
+            throw new Exception("Invalid course title length.");
+        }
+
+        // Remove spacing except at end of course title.
+        int currentLength = courseTitle.length();
+        // Below loop will fix issues with "embedded spaces". Ex.: "CSC 190" would become "CSC190 ".
+        for (int i = 0; i < currentLength - 1; i++) {
+            if (courseTitle.charAt(i) == ' ') {  // Remove the embedded space.
+                courseTitle = courseTitle.substring(0, i) + courseTitle.substring(i + 1, currentLength);
+            }
+        }
+        // Upper case the title.
+        courseTitle = courseTitle.toUpperCase();
+
+        // If there isn't already a space at the end of the course title (and the title is 6 chars long), then add one.
+        if (courseTitle.length() == 6) {
+            courseTitle = courseTitle + " ";
+        }
+        return courseTitle;
+    }
+
 
     public boolean validRequirementSatisfaction(String requirementSatisfaction) {
         switch (requirementSatisfaction) {
