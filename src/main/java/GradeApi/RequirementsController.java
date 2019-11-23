@@ -184,6 +184,7 @@ public class RequirementsController {
     /*
     assume all concentrations will be:
         General
+        Statistical Computing
         Digital Forensics and Cybersecurity
         Computer Technology
         Interactive Multimedia
@@ -197,9 +198,12 @@ public class RequirementsController {
                 (rs, rowNum) -> rs.getString(1));
 
 
-        String[] coreNeeded = new String[18];
+        String[] coreNeeded = new String[12];
 
-        if ( concentration.equals("General") || concentration.equals("Computer Technology") || concentration.equals("Interactive Multimedia") || concentration.equals("Artificial Intelligence in data Science") ){
+        if ( concentration.equals("General") || concentration.equals("Computer Technology") ||
+                concentration.equals("Interactive Multimedia") || concentration.equals("Artificial Intelligence in data Science") ||
+                concentration.equals("Statistical Computing")
+        ){
             if( !coreComplete.contains("CSC185 ") ){
                 coreNeeded[0] = "CSC185";
             }
@@ -254,60 +258,36 @@ public class RequirementsController {
                 coreNeeded[3] = "CSC313";
             }
 
-            if( !coreComplete.contains("CSC332 ") ){
-                coreNeeded[4] = "CSC332";
-            }
-
-            if( !coreComplete.contains("CSC360 ") ){
-                coreNeeded[5] = "CSC360";
-            }
-
-            if( !coreComplete.contains("CSC400 ") ){
-                coreNeeded[6] = "CSC400";
-            }
-
             if( !coreComplete.contains("CSC410 ") ){
-                coreNeeded[7] = "CSC410";
+                coreNeeded[4] = "CSC410";
             }
 
             if( !coreComplete.contains("CSC536 ") ){
-                coreNeeded[8] = "CSC536";
+                coreNeeded[5] = "CSC536";
             }
 
             if( !coreComplete.contains("CSC537 ") ){
-                coreNeeded[9] = "CSC537";
-            }
-
-            if( !coreComplete.contains("CSC547 ") ){
-                coreNeeded[10] = "CSC547";
-            }
-
-            if( !coreComplete.contains("CSC548 ") ){
-                coreNeeded[11] = "CSC548";
-            }
-
-            if( !coreComplete.contains("CSC549 ") ){
-                coreNeeded[12] = "CSC549";
+                coreNeeded[6] = "CSC537";
             }
 
             if( !coreComplete.contains("INF318 ") ){
-                coreNeeded[13] = "INF318";
+                coreNeeded[7] = "INF318";
             }
 
             if( !coreComplete.contains("INF321 ") ){
-                coreNeeded[14] = "INF321";
+                coreNeeded[8] = "INF321";
             }
 
             if( !coreComplete.contains("INF322 ") ){
-                coreNeeded[15] = "INF322";
+                coreNeeded[9] = "INF322";
             }
 
             if( !coreComplete.contains("CSC349 ") && !coreComplete.contains("INF495 ") ){
-                coreNeeded[16] = "CSC349, INF495";
+                coreNeeded[10] = "CSC349, INF495";
             }
 
             if( !coreComplete.contains("CSC520 ") && !coreComplete.contains("CSC539 ") && !coreComplete.contains("CSC542 ") && !coreComplete.contains("CSC543 ") && !coreComplete.contains("CSC544 ")  ){
-                coreNeeded[17] = "CSC520, CSC539, CSC542, CSC543, CSC544";
+                coreNeeded[11] = "CSC520, CSC539, CSC542, CSC543, CSC544";
             }
 
         }
@@ -657,8 +637,45 @@ public class RequirementsController {
                     (supportingComplete.contains("HLS401 ") || supportingComplete.contains("HLS402 ")) ||
                     (supportingComplete.contains("HLS401 ") || supportingComplete.contains("HLS403 ")) ||
                     (supportingComplete.contains("HLS402 ") || supportingComplete.contains("HLS403 "))
-            ) ){
+            ) ) {
                 supportingNeeded[9] = "AEM202 and (AEM332 or AEM336 or AEM506), or BIO315 and BIO533, or ECO230 and ECO231, or RMI370 and (RMI372 or RMI374 or INS378), or STA520 and STA521, or CSC332 and (CSC542 or CSC547 or CSC548), or GEO353 and GEO453, or 2 from (HLS401, HLS402, or HLS403)";
+            }
+        } else if ( concentration.equals("Statistical Computing") ) {
+
+            if (!supportingComplete.contains("MAT124 ")) {
+                supportingNeeded[0] = "MAT124";
+            }
+
+            if (!supportingComplete.contains("MAT224 ")) {
+                supportingNeeded[1] = "MAT224";
+            }
+
+            if (!supportingComplete.contains("STA270 ")) {
+                supportingNeeded[2] = "STA270";
+            }
+
+            if (!supportingComplete.contains("STA320 ")) {
+                supportingNeeded[3] = "STA320";
+            }
+
+            if (!supportingComplete.contains("STA375 ")) {
+                supportingNeeded[4] = "STA375";
+            }
+
+            if (!supportingComplete.contains("STA501 ")) {
+                supportingNeeded[5] = "STA501";
+            }
+
+            if (!supportingComplete.contains("STA575 ")) {
+                supportingNeeded[6] = "STA575";
+            }
+
+            if (!supportingComplete.contains("STA580 ")) {
+                supportingNeeded[7] = "STA580";
+            }
+
+            if (!supportingComplete.contains("STA585 ")) {
+                supportingNeeded[8] = "STA585";
             }
         }
         return supportingNeeded;
@@ -666,7 +683,7 @@ public class RequirementsController {
 
     // Checks if concentration requirements are done
     public String[] getConcentrationRemaining(String concentration) {
-        String[] concentrationNeeded = new String[9];
+        String[] concentrationNeeded = new String[10];
 
         List<String> concentrationComplete = jdbcTemplate.query(
                 "SELECT title FROM course WHERE title = ?", new Object[]{"CSC%"},
@@ -809,27 +826,309 @@ public class RequirementsController {
             }
 
             if ( !concentrationComplete.contains("CSC545 ") ){
-                concentrationNeeded[2] = "CSC320";
+                concentrationNeeded[2] = "CSC545";
             }
 
             if ( !concentrationComplete.contains("CSC546 ") ){
-                concentrationNeeded[3] = "CSC320";
+                concentrationNeeded[3] = "CSC546";
             }
 
             if ( !concentrationComplete.contains("CSC581 ") ){
-                concentrationNeeded[4] = "CSC320";
+                concentrationNeeded[4] = "CSC581";
             }
 
             if ( !concentrationComplete.contains("CSC582 ") ){
-                concentrationNeeded[5] = "CSC320";
+                concentrationNeeded[5] = "CSC582";
             }
 
             if ( !concentrationComplete.contains("CSC583 ") ){
-                concentrationNeeded[6] = "CSC320";
+                concentrationNeeded[6] = "CSC583";
             }
 
             if ( !concentrationComplete.contains("CSC494 ") && !concentrationComplete.contains("CSC495 ") && !concentrationComplete.contains("CSC496 ") ){
                 concentrationNeeded[7] = "CSC494, CSC495, CSC496";
+            }
+
+        } else if ( concentration.equals("Statistical Computing") ){
+
+            if ( !concentrationComplete.contains("CSC320 ") ){
+                concentrationNeeded[0] = "CSC320";
+            }
+
+            if ( !concentrationComplete.contains("CSC544 ") ){
+                concentrationNeeded[1] = "CSC544";
+            }
+
+            if ( !concentrationComplete.contains("CSC545 ") ){
+                concentrationNeeded[2] = "CSC545";
+            }
+
+            // Checks for two courses from list
+            int statComputTwoNeeded = 0;
+            String statTwoNeededAvaliable = "";
+            if ( !concentrationComplete.contains("CSC300 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC300, ";
+            }
+
+            if ( !concentrationComplete.contains("309 ") && !concentrationComplete.contains("CSC309 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC308, CSC309, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC315 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC315, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC316 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC316, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC332 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC332, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC350 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC350, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC360 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC360, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC390 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC390, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC400 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC400, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC425 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC425, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC440 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC440, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC460 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC460, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC490 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC490, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC491 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC491, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC520 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC520, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC546 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC546, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC547 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC547, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC548 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC548, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC550 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC550, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC555 ") ){
+                statComputTwoNeeded++;
+            } else {
+                statTwoNeededAvaliable += "CSC555, ";
+            }
+
+            if ( statComputTwoNeeded < 2 ){
+                concentrationNeeded[3] = statTwoNeededAvaliable.substring(0, statTwoNeededAvaliable.length()-2);
+            }
+        } else if ( concentration.equals("Digital Forensics and Cybersecurity") ){
+
+
+            if ( !concentrationComplete.contains("CSC332 ") ){
+                concentrationNeeded[0] = "CSC332";
+            }
+
+            if ( !concentrationComplete.contains("CSC360 ") ){
+                concentrationNeeded[1] = "CSC360";
+            }
+
+            if ( !concentrationComplete.contains("CSC400 ") ){
+                concentrationNeeded[2] = "CSC400";
+            }
+
+            if ( !concentrationComplete.contains("CSC460 ") ){
+                concentrationNeeded[3] = "CSC460";
+            }
+
+            if ( !concentrationComplete.contains("CSC520 ") ){
+                concentrationNeeded[4] = "CSC520";
+            }
+
+            if ( !concentrationComplete.contains("CSC544 ") ){
+                concentrationNeeded[5] = "CSC544";
+            }
+
+            if ( !concentrationComplete.contains("CSC547 ") ){
+                concentrationNeeded[6] = "CSC547";
+            }
+
+            if ( !concentrationComplete.contains("CSC548 ") ){
+                concentrationNeeded[7] = "CSC548";
+            }
+
+            if ( !concentrationComplete.contains("CSC549 ") ){
+                concentrationNeeded[8] = "CSC549";
+            }
+
+            // Checks for two courses from list
+            int digitalForensicsTwoNeeded = 0;
+            String digitalForensicsTwoNeededAvaliable = "";
+            if ( !concentrationComplete.contains("CSC300 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC300, ";
+            }
+
+            if ( !concentrationComplete.contains("309 ") && !concentrationComplete.contains("CSC309 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC308, CSC309, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC315 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC315, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC316 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC316, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC320 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC320, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC350 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC350, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC390 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC390, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC425 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC425, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC440 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC440, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC490 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC490, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC491 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC491, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC538 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC538, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC540 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC540, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC545 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC545, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC546 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC546, ";
+            }
+
+            if ( !concentrationComplete.contains("CSC550 ") ){
+                digitalForensicsTwoNeeded++;
+            } else {
+                digitalForensicsTwoNeededAvaliable += "CSC550, ";
+            }
+
+            if ( digitalForensicsTwoNeeded < 2 ){
+                concentrationNeeded[3] = digitalForensicsTwoNeededAvaliable.substring(0, digitalForensicsTwoNeededAvaliable.length()-2);
             }
 
         }
