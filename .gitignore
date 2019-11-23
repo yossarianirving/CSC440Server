@@ -151,3 +151,9 @@ nbdist/
 .nb-gradle/
 
 # End of https://www.gitignore.io/api/netbeans
+
+h2/h2db.lock.db
+
+h2/h2db.mv.db
+
+h2/h2db.trace.db
