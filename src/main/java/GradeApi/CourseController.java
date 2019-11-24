@@ -71,6 +71,11 @@ public class CourseController {
         course.setSemesterTaken(course.getSemesterTaken().toUpperCase());
         course.setTitle(course.getTitle().toUpperCase());
 
+        // Course titles cannot contain special characters (except for spaces).
+        if (containsSpecialCharacter(course.getTitle())) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+
         // Check that the course exists
         int courseExists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{course.getId()}, Integer.class);
         if (courseExists == 0) {
@@ -83,7 +88,7 @@ public class CourseController {
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        // Try making the course title valid.
+        // Try making the course title valid (remove spaces and special characters).
         try {
             course.setTitle(fixCourseTitle(course.getTitle()));
         } catch (Exception e) {
@@ -102,6 +107,15 @@ public class CourseController {
     // Add course
     @PostMapping("")
     public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) {
+        // Capitalize the semester and course title.
+        newCourse.setSemesterTaken(newCourse.getSemesterTaken().toUpperCase());  // Make all semesters uppercase.
+        newCourse.setTitle(newCourse.getTitle().toUpperCase());
+
+        // Course titles cannot contain special characters (except for spaces).
+        if (containsSpecialCharacter(newCourse.getTitle())) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+
         // Try making the course title valid.
         try {
             newCourse.setTitle(fixCourseTitle(newCourse.getTitle()));
@@ -119,10 +133,6 @@ public class CourseController {
         if (!validRequirementSatisfaction(newCourse.getRequirementSatisfaction())) {
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
-
-        // Capitalize the semester and course title.
-        newCourse.setSemesterTaken(newCourse.getSemesterTaken().toUpperCase());  // Make all semesters uppercase.
-        newCourse.setTitle(newCourse.getTitle().toUpperCase());
 
         List<Object[]> courseList = new ArrayList<>();
         courseList.add(newCourse.toObjectArray());
@@ -146,13 +156,14 @@ public class CourseController {
     // Returns a corrected course title corrected to the system standards.
     // Ex: "csc 190" becomes "CSC190 ".
     private String fixCourseTitle(String courseTitle) throws Exception {
-        // To be a valid title, it must be 6 or 7 chars long and be of the form: "XXX123 " or "XXX123W".
+        // To be a valid title, it must be 6 or 7 chars long.
         if (courseTitle.length() > 7 || courseTitle.length() < 6) {
             throw new Exception("Invalid course title length.");
         }
 
         // Remove spacing except at end of course title.
         int currentLength = courseTitle.length();
+
         // Below loop will fix issues with "embedded spaces". Ex.: "CSC 190" would become "CSC190 ".
         for (int i = 0; i < currentLength - 1; i++) {
             if (courseTitle.charAt(i) == ' ') {  // Remove the embedded space.
@@ -169,7 +180,18 @@ public class CourseController {
         return courseTitle;
     }
 
+    // Checks if a string contains a character that is not a letter, number, or space.
+    public boolean containsSpecialCharacter(String s) {
+        String numbersAndLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ";
+        for (int i = 0; i < s.length(); i++) {
+            if (!numbersAndLetters.contains("" + s.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    // Checks that a requirement satisfaction is valid.
     public boolean validRequirementSatisfaction(String requirementSatisfaction) {
         switch (requirementSatisfaction) {
             case "Supporting":
