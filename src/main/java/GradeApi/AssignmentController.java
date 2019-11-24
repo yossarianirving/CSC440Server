@@ -21,14 +21,14 @@ public class AssignmentController {
     JdbcTemplate jdbcTemplate;
 
     // modify an assignment (could change title, weight, grade or any combination of these)
-    @PatchMapping("")
-    public ResponseEntity<Assignment> modifyAssignment(@RequestBody Assignment newAssignment) throws Exception {
+    @PatchMapping("{id}")
+    public ResponseEntity<Assignment> modifyAssignment(@RequestBody Assignment newAssignment, @PathVariable("id") String id) throws Exception {
         // Assume assignment id won't be modified.
 
         System.out.println(newAssignment.getTitle());
 
         // Check that the assignment exists.
-        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{newAssignment.getId()}, Integer.class);
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{id}, Integer.class);
         if (count == 0) {
             return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
         }
@@ -43,15 +43,15 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.OK);
     }
 
-    @DeleteMapping()
-    public ResponseEntity<Assignment> deleteAssignment(@RequestBody Assignment assignment) throws Exception {
+    @DeleteMapping("{id}")
+    public ResponseEntity<Assignment> deleteAssignment(@PathVariable("id") String id) throws Exception {
         // Check that the assignment exists.
-        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{assignment.getId()}, Integer.class);
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{id}, Integer.class);
         if (count == 0) {
-            return new ResponseEntity<>(assignment, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        jdbcTemplate.update("DELETE FROM assignment WHERE id = ?", new Object[]{assignment.getId()});
-        return new ResponseEntity<>(assignment, HttpStatus.OK);
+        jdbcTemplate.update("DELETE FROM assignment WHERE id = ?", new Object[]{id});
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 

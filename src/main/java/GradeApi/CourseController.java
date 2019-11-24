@@ -52,7 +52,7 @@ public class CourseController {
 
     // get information for one course
     @GetMapping("{id}")
-    public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) {
+    public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) throws Exception {
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -63,8 +63,8 @@ public class CourseController {
     }
 
     // modify a course
-    @PatchMapping()
-    public ResponseEntity<Course> modifyCourse(@RequestBody Course course) {
+    @PatchMapping("{id}")
+    public ResponseEntity<Course> modifyCourse(@RequestBody Course course, @PathVariable("id") String id) throws Exception {
         // Assume that the course ID was NOT changed (only other information on the course was changed).
 
         // Capitalize the semester and title.
@@ -77,7 +77,7 @@ public class CourseController {
         }
 
         // Check that the course exists
-        int courseExists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{course.getId()}, Integer.class);
+        int courseExists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (courseExists == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -106,7 +106,7 @@ public class CourseController {
 
     // Add course
     @PostMapping("")
-    public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) {
+    public ResponseEntity<Course> addCourse(@RequestBody Course newCourse) throws Exception {
         // Capitalize the semester and course title.
         newCourse.setSemesterTaken(newCourse.getSemesterTaken().toUpperCase());  // Make all semesters uppercase.
         newCourse.setTitle(newCourse.getTitle().toUpperCase());
@@ -142,15 +142,15 @@ public class CourseController {
 
 
     // Delete course
-    @DeleteMapping()
-    public ResponseEntity<Course> deleteAssignment(@RequestBody Course course) throws Exception {
+    @DeleteMapping("{id}")
+    public ResponseEntity<Course> deleteAssignment(@Param("id") String id) throws Exception {
         // Check that the course exists.
-        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{course.getId()}, Integer.class);
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (count == 0) {
-            return new ResponseEntity<>(course, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{course.getId()});
-        return new ResponseEntity<>(course, HttpStatus.OK);
+        jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{id});
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     // Returns a corrected course title corrected to the system standards.
