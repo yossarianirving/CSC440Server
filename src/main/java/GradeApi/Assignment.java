@@ -19,7 +19,7 @@ public class Assignment {
 
 
     public Object[] toObjectArray() {
-        return new Object[]{getId(), getTitle(), getWeight(), getGrade(), getCourseID()};
+        return new Object[]{getTitle(), getWeight(), getGrade(), getCourseID()};
     }
 
     @Override

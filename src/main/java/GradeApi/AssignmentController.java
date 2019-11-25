@@ -44,7 +44,7 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/   {id}")
     public ResponseEntity<Assignment> deleteAssignment(@PathVariable("id") String id) throws Exception {
         // Check that the assignment exists.
         int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{id}, Integer.class);
@@ -75,8 +75,11 @@ public class AssignmentController {
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
+    // Get all assignments for one course.
     @GetMapping("")
     public ResponseEntity<Object[]> getAssignments(@Param(value = "courseID") String courseID) throws Exception {
+        testInsertsStatements();
+
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{courseID}, Integer.class);
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -108,7 +111,7 @@ public class AssignmentController {
         }
 
         jdbcTemplate.execute("CREATE TABLE assignment(\n" +
-                "\tid INT PRIMARY KEY,\n" +
+                "\tid INTEGER AUTO_INCREMENT PRIMARY KEY,\n" +
                 "\ttitle CHAR(50),\n" +
                 "\tweight DOUBLE NOT NULL,\n" +
                 "\tgrade DOUBLE NOT NULL,\n" +
@@ -157,7 +160,7 @@ public class AssignmentController {
         a.add(a3.toObjectArray());
         a.add(a4.toObjectArray());
 
-        jdbcTemplate.batchUpdate("INSERT INTO course(id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?,?)", c);
+        jdbcTemplate.batchUpdate("INSERT INTO course(title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?)", c);
         System.out.println("Querying for course:");
         jdbcTemplate.query(
                 "SELECT id, title FROM course",

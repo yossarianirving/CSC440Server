@@ -64,7 +64,7 @@ public class CourseController {
     }
 
     // modify a course
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Course> modifyCourse(@RequestBody Course course, @PathVariable("id") String id) throws Exception {
         // Assume that the course ID was NOT changed (only other information on the course was changed).
 
@@ -143,8 +143,8 @@ public class CourseController {
 
 
     // Delete course
-    @DeleteMapping("{id}")
-    public ResponseEntity deleteAssignment(@Param("id") String id) throws Exception {
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteCourse(@PathVariable("id") String id) throws Exception {
         // Check that the course exists.
         int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (count == 0) {
@@ -243,7 +243,7 @@ public class CourseController {
         conn = DriverManager.getConnection("jdbc:h2:./h2/h2db", "sa", "");
         stmt = conn.createStatement();
         stmt.execute("CREATE TABLE course(\n" +
-                "\tid INT PRIMARY KEY,\n" +
+                "\tid INTEGER AUTO_INCREMENT PRIMARY KEY,\n" +
                 "\ttitle CHAR(7) NOT NULL,\n" +
                 "\trequirement_satisfaction CHAR(50) NOT NULL,\n" +
                 "\tcredits DOUBLE NOT NULL,\n" +
