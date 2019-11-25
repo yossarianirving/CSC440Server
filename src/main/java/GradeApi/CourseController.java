@@ -125,7 +125,7 @@ public class CourseController {
         }
 
         // Don't allow two courses with same title to be taken in same year and semester.
-        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id != ? AND title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getId(), newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
+        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
         if (courseExistsCount > 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
