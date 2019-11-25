@@ -21,6 +21,7 @@ import java.util.List;
 @SpringBootApplication
 @Component
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/courses")
 public class CourseController {
 
@@ -29,7 +30,7 @@ public class CourseController {
 
     // get all courses of a particular type (according to value of status)
     @GetMapping("")
-    public ResponseEntity<Object[]> getCourses(@Param("status") String status) throws Exception {
+    public ResponseEntity<Object[]> getCourses(@RequestParam(value = "status", defaultValue = "") String status) throws Exception {
         if (status.equals("")) {
             List<Course> courses = jdbcTemplate.query(
                     "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status FROM course", (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7), rs.getString(8))
@@ -143,14 +144,14 @@ public class CourseController {
 
     // Delete course
     @DeleteMapping("{id}")
-    public ResponseEntity<Course> deleteAssignment(@Param("id") String id) throws Exception {
+    public ResponseEntity deleteAssignment(@Param("id") String id) throws Exception {
         // Check that the course exists.
         int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
         if (count == 0) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{id});
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     // Returns a corrected course title corrected to the system standards.

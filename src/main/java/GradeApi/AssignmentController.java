@@ -14,6 +14,7 @@ import java.util.*;
 @SpringBootApplication
 @Component
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/assignments")
 public class AssignmentController {
 
@@ -75,7 +76,7 @@ public class AssignmentController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Object[]> getAssignments(@Param("courseID") String courseID) throws Exception {
+    public ResponseEntity<Object[]> getAssignments(@Param(value = "courseID") String courseID) throws Exception {
         int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{courseID}, Integer.class);
         if (courseExistsCount == 0) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
