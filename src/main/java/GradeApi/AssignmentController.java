@@ -22,33 +22,35 @@ public class AssignmentController {
     JdbcTemplate jdbcTemplate;
 
     // modify an assignment (could change title, weight, grade or any combination of these)
-    @PatchMapping("{id}")
-    public ResponseEntity<Assignment> modifyAssignment(@RequestBody Assignment newAssignment, @PathVariable("id") String id) throws Exception {
-        // Assume assignment id won't be modified.
-
-        System.out.println(newAssignment.getTitle());
-
+    @PatchMapping("/{id}")
+    public ResponseEntity<Assignment> modifyAssignment(@RequestBody Assignment assignment, @PathVariable("id") String id) throws Exception {
         // Check that the assignment exists.
-        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{id}, Integer.class);
-        if (count == 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
+        if (!assignmentExists(Integer.parseInt(id))) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+
+        // Check that the course exists.
+        if (!courseExists(assignment.getCourseID())) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        // Set the assignment id to that of the path variable.
+        assignment.setId(Integer.parseInt(id));
 
         // Check that the title does not exist for some other assignment.
-        int duplicates = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id != ? AND title = ? AND course_id = ?", new Object[]{newAssignment.getId(), newAssignment.getTitle(), newAssignment.getCourseID()}, Integer.class);
+        int duplicates = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id != ? AND title = ? AND course_id = ?", new Object[]{id, assignment.getTitle(), assignment.getCourseID()}, Integer.class);
         if (duplicates > 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(assignment, HttpStatus.NOT_FOUND);
         }
 
-        jdbcTemplate.update("UPDATE assignment SET title = ?, weight = ?, grade = ? WHERE id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getWeight(), newAssignment.getGrade(), newAssignment.getId()});
-        return new ResponseEntity<>(newAssignment, HttpStatus.OK);
+        jdbcTemplate.update("UPDATE assignment SET title = ?, weight = ?, grade = ? WHERE id = ?", new Object[]{assignment.getTitle(), assignment.getWeight(), assignment.getGrade(), id});
+        return new ResponseEntity<>(assignment, HttpStatus.OK);
     }
 
-    @DeleteMapping("/   {id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Assignment> deleteAssignment(@PathVariable("id") String id) throws Exception {
-        // Check that the assignment exists.
-        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{id}, Integer.class);
-        if (count == 0) {
+        // Make sure assignment exists.
+        if (!assignmentExists(Integer.parseInt(id))) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         jdbcTemplate.update("DELETE FROM assignment WHERE id = ?", new Object[]{id});
@@ -58,37 +60,54 @@ public class AssignmentController {
 
     @PostMapping("")
     public ResponseEntity<Assignment> addAssignment(@RequestBody Assignment newAssignment) {
+        // Check that the course exists.
+        if (!courseExists(newAssignment.getCourseID())) {
+            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
+        }
+
         // Check that the assignment does not already exist.
-        int number = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE (title = ? AND course_id = ?) OR id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getCourseID(), newAssignment.getId()}, Integer.class);
+        int number = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE title = ? AND course_id = ?", new Object[]{newAssignment.getTitle(), newAssignment.getCourseID()}, Integer.class);
         if (number > 0) {
             return new ResponseEntity<>(newAssignment, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        // Check that the course exists.
-        int courseCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{newAssignment.getCourseID()}, Integer.class);
-        if (courseCount == 0) {
-            return new ResponseEntity<>(newAssignment, HttpStatus.NOT_FOUND);
-        }
         List<Object[]> assignmentList = new ArrayList<>();
         assignmentList.add(newAssignment.toObjectArray());
-        jdbcTemplate.batchUpdate("INSERT INTO assignment(id, title, weight, grade, course_id) VALUES (?,?,?,?,?)", assignmentList);
+        jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", assignmentList);
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
     // Get all assignments for one course.
     @GetMapping("")
     public ResponseEntity<Object[]> getAssignments(@Param(value = "courseID") String courseID) throws Exception {
-        testInsertsStatements();
-
-        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{courseID}, Integer.class);
-        if (courseExistsCount == 0) {
+        // Check that the course exists.
+        if (!courseExists(Integer.parseInt(courseID))) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+
         List<Assignment> assignment = jdbcTemplate.query(
                 "SELECT id, title, weight, grade, course_id FROM assignment WHERE course_id = ?", new Object[]{courseID},
                 (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5))
         );
         return new ResponseEntity<>(assignment.toArray(), HttpStatus.OK);
+    }
+
+    // courseExists ~ checks that the course exists.
+    public boolean courseExists(int id) {
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
+        if (count == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean assignmentExists(int id) {
+        // Check that the assignment exists.
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM assignment WHERE id = ?", new Object[]{id}, Integer.class);
+        if (count == 0) {
+            return false;
+        }
+        return true;
     }
 
     public boolean assignmentTableExists() throws Exception {

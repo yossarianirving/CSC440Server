@@ -2,7 +2,6 @@ package GradeApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -54,8 +53,7 @@ public class CourseController {
     // get information for one course
     @GetMapping("{id}")
     public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) throws Exception {
-        int courseExistsCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
-        if (courseExistsCount == 0) {
+        if (!courseExists(Integer.parseInt(id))) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         List<Course> course = jdbcTemplate.query(
@@ -66,7 +64,12 @@ public class CourseController {
     // modify a course
     @PatchMapping("/{id}")
     public ResponseEntity<Course> modifyCourse(@RequestBody Course course, @PathVariable("id") String id) throws Exception {
-        // Assume that the course ID was NOT changed (only other information on the course was changed).
+        course.setId(Integer.parseInt(id));
+
+        // Check that the course exists
+        if (!courseExists(Integer.parseInt(id))) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
 
         // Capitalize the semester and title.
         course.setSemesterTaken(course.getSemesterTaken().toUpperCase());
@@ -75,12 +78,6 @@ public class CourseController {
         // Course titles cannot contain special characters (except for spaces).
         if (containsSpecialCharacter(course.getTitle())) {
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
-        }
-
-        // Check that the course exists
-        int courseExists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
-        if (courseExists == 0) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
         // Don't allow two courses with same title to be taken in same year and semester.
@@ -137,7 +134,7 @@ public class CourseController {
 
         List<Object[]> courseList = new ArrayList<>();
         courseList.add(newCourse.toObjectArray());
-        jdbcTemplate.batchUpdate("INSERT INTO course (id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?,?)", courseList);
+        jdbcTemplate.batchUpdate("INSERT INTO course (title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?)", courseList);
         return new ResponseEntity<>(newCourse, HttpStatus.CREATED);
     }
 
@@ -146,8 +143,7 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteCourse(@PathVariable("id") String id) throws Exception {
         // Check that the course exists.
-        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
-        if (count == 0) {
+        if (!courseExists(Integer.parseInt(id))) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{id});
@@ -179,6 +175,15 @@ public class CourseController {
             courseTitle = courseTitle + " ";
         }
         return courseTitle;
+    }
+
+    // courseExists ~ checks that the course exists.
+    public boolean courseExists(int id) {
+        int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
+        if (count == 0) {
+            return false;
+        }
+        return true;
     }
 
     // Checks if a string contains a character that is not a letter, number, or space.

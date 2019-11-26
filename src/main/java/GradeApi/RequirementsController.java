@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import java.util.List;
 @SpringBootApplication
 @Component
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/concentrationRequirements")
 public class RequirementsController {
 
@@ -30,7 +32,7 @@ public class RequirementsController {
             case "Computer Technology": case "Interactive Multimedia": case "Artificial Intelligence in data Science":
                 break;
             default:
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
         String genEdE1 = getGenEdE1Remaining();
