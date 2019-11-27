@@ -74,6 +74,11 @@ public class AssignmentController {
         List<Object[]> assignmentList = new ArrayList<>();
         assignmentList.add(newAssignment.toObjectArray());
         jdbcTemplate.batchUpdate("INSERT INTO assignment(title, weight, grade, course_id) VALUES (?,?,?,?)", assignmentList);
+
+        // Get the id of the new assignment.
+        int id = jdbcTemplate.queryForObject("SELECT SYSTEM_SEQUENCE_243624BC_0113_49E2_A746_10DDB1169396.NEXTVAL - 1 FROM DUAL", Integer.class);
+        newAssignment.setId(id);
+
         return new ResponseEntity<>(newAssignment, HttpStatus.CREATED);
     }
 
