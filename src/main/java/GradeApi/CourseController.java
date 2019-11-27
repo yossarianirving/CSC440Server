@@ -137,7 +137,7 @@ public class CourseController {
         jdbcTemplate.batchUpdate("INSERT INTO course (title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?)", courseList);
 
         // Don't allow two courses with same title to be taken in same year and semester.
-        int courseExistsCount2 = jdbcTemplate.queryForObject("SELECT ", new Object[]{newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
+        int courseExistsCount2 = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE title = ? AND semester_taken = ? AND year_taken = ?", new Object[]{newCourse.getTitle(), newCourse.getSemesterTaken(), newCourse.getYearTaken()}, Integer.class);
         return new ResponseEntity<>(newCourse, HttpStatus.CREATED);
     }
 
