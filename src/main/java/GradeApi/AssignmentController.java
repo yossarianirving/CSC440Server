@@ -97,6 +97,18 @@ public class AssignmentController {
         return new ResponseEntity<>(assignment.toArray(), HttpStatus.OK);
     }
 
+
+    // Get one assignment.
+    @GetMapping("/{id}")
+    public ResponseEntity getAssignment(@PathVariable("id") String id) throws Exception {
+        if (!assignmentExists(Integer.parseInt(id))) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        List<Assignment> assignment = jdbcTemplate.query(
+                "SELECT id, title, weight, grade, course_id FROM assignment WHERE id = ?", new Object[]{id}, (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5)));
+        return new ResponseEntity<>(assignment.toArray(), HttpStatus.OK);
+    }
+
     // courseExists ~ checks that the course exists.
     public boolean courseExists(int id) {
         int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM course WHERE id = ?", new Object[]{id}, Integer.class);
