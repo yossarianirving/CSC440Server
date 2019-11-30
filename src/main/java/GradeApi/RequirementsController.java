@@ -15,6 +15,7 @@ import java.util.List;
 
 @SpringBootApplication
 @Component
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/concentrationRequirements")
 public class RequirementsController {
