@@ -49,13 +49,13 @@ public class CourseController {
 
     // get information for one course
     @GetMapping("/{id}")
-    public ResponseEntity<Object[]> getCourse(@PathVariable("id") String id) throws Exception {
+    public ResponseEntity<Course> getCourse(@PathVariable("id") String id) throws Exception {
         if (!courseExists(Integer.parseInt(id))) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         List<Course> course = jdbcTemplate.query(
                 "SELECT id, title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status FROM course WHERE id = ?", new Object[]{id}, (rs, rowNum) -> new Course(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getString(5), rs.getInt(6), rs.getString(7), rs.getString(8)));
-        return new ResponseEntity<>(course.toArray(), HttpStatus.OK);
+        return new ResponseEntity<>(course.get(0), HttpStatus.OK);
     }
 
     // modify a course
