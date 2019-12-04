@@ -1,6 +1,6 @@
 #FileLock
-#Mon Dec 02 13:50:55 EST 2019
-server=localhost\:53317
-hostName=localhost
+#Mon Dec 02 18:37:16 EST 2019
+server=192.168.1.22\:56112
+hostName=EGVLenovo.lan
 method=file
-id=16ec7f37bbbde62c8d9e9c7a79340f9314bf7b90920
+id=16ec8f9a44c663f64c2280841c022cd5c132400999a

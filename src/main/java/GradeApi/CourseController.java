@@ -137,7 +137,7 @@ public class CourseController {
         jdbcTemplate.batchUpdate("INSERT INTO course (title, requirement_satisfaction, credits, semester_taken, year_taken, final_grade, status) VALUES (?,?,?,?,?,?,?)", courseList);
 
         // Get the id of the new course.
-        int id  = jdbcTemplate.queryForObject("SELECT SYSTEM_SEQUENCE_318E6C69_933E_40FF_A195_9EB33D6E5BA0.NEXTVAL - 1 FROM DUAL", Integer.class);
+        int id = jdbcTemplate.queryForObject("SELECT SYSTEM_SEQUENCE_318E6C69_933E_40FF_A195_9EB33D6E5BA0.NEXTVAL - 1 FROM DUAL", Integer.class);
         newCourse.setId(id);
 
         return new ResponseEntity<>(newCourse, HttpStatus.CREATED);
@@ -147,11 +147,20 @@ public class CourseController {
     // Delete course
     @DeleteMapping("/{id}")
     public ResponseEntity deleteCourse(@PathVariable("id") String id) throws Exception {
-        // Check that the course exists.
-        if (!courseExists(Integer.parseInt(id))) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        try {
+            // Check that the course exists.
+            if (!courseExists(Integer.parseInt(id))) {
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
+            }
+            jdbcTemplate.update("DELETE FROM Xcourse WHERE id = ?", new Object[]{id});
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            if (e.getMessage().contains("Table \"COURSE\" not found")) {
+                createCourseTable();
+            } else {
+                throw e;
+            }
         }
-        jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{id});
         return new ResponseEntity(HttpStatus.OK);
     }
 

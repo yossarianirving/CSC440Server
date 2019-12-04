@@ -106,7 +106,7 @@ public class AssignmentController {
         }
         List<Assignment> assignment = jdbcTemplate.query(
                 "SELECT id, title, weight, grade, course_id FROM assignment WHERE id = ?", new Object[]{id}, (rs, rowNum) -> new Assignment(rs.getInt(1), rs.getString(2), rs.getDouble(3), rs.getDouble(4), rs.getInt(5)));
-        return new ResponseEntity<>(assignment.toArray(), HttpStatus.OK);
+        return new ResponseEntity<>(assignment.get(0), HttpStatus.OK);
     }
 
     // courseExists ~ checks that the course exists.
@@ -142,7 +142,6 @@ public class AssignmentController {
         // First, need to check that the course table exists so the foreign key constraint will work.
         CourseController c = new CourseController();
         if (!c.courseTableExists()) {
-            System.out.println("course table did NOT exist!");
             c.createCourseTable();
         }
 
