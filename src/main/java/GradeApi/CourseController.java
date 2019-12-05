@@ -152,7 +152,7 @@ public class CourseController {
             if (!courseExists(Integer.parseInt(id))) {
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
-            jdbcTemplate.update("DELETE FROM Xcourse WHERE id = ?", new Object[]{id});
+            jdbcTemplate.update("DELETE FROM course WHERE id = ?", new Object[]{id});
             return new ResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
             if (e.getMessage().contains("Table \"COURSE\" not found")) {

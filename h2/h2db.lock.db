@@ -1,6 +1,6 @@
 #FileLock
-#Mon Dec 02 18:37:16 EST 2019
-server=192.168.1.22\:56112
-hostName=EGVLenovo.lan
+#Thu Dec 05 12:18:26 EST 2019
+server=157.89.188.51\:50194
+hostName=157.89.188.51
 method=file
-id=16ec8f9a44c663f64c2280841c022cd5c132400999a
+id=16ed711e610132fcc89823a5701fcd7a2b45ec52be2
